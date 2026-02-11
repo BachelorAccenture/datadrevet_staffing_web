@@ -1,0 +1,264 @@
+.edit-container {
+    width: 70%;
+    margin: 1em auto 0 auto;
+    background-color: #F6F4F4;
+    border: 1px solid rgb(87, 87, 87);
+    border-radius: 13px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 2em;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.edit-row {
+    display: flex;
+    gap: 1.5em;
+}
+
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    flex: 1;
+}
+
+.edit-searchbar {
+    width: 49%;
+}
+
+.edit-field label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+}
+
+.edit-field input,
+.edit-field select {
+    padding: 0.5em 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+
+.edit-field input:focus,
+.edit-field select:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.edit-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.section-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+}
+
+.project-list-edit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.project-item-edit {
+    display: flex;
+    flex-direction: column;
+    background-color: #D9D9D9;
+    border-radius: 12px;
+    padding: 0.4em 0.8em;
+}
+
+.project-name-edit {
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.project-rolle-edit {
+    font-size: 0.78em;
+    color: #555;
+    font-style: italic;
+}
+
+.edit-note {
+    font-size: 0.8em;
+    color: #888;
+    font-style: italic;
+    margin: 0;
+}
+
+.edit-actions {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+
+.save-button {
+    background-color: #A100FF;
+    color: white;
+    border: none;
+    padding: 0.6em 2em;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.save-button:hover {
+    background-color: #8a00d9;
+}
+
+.cancel-button {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 0.6em 2em;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: auto;
+}
+
+.cancel-button:hover {
+    background-color: #f0f0f0;
+}
+
+.delete-button {
+    background-color: #FF4C4C;
+    color: white;
+    border: none;
+    padding: 0.6em 2em;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.delete-button:hover {
+    background-color: #d93636;
+}
+
+/* Legg til prosjekt */
+
+.add-project-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 2px dashed #aaa;
+    border-radius: 12px;
+    padding: 0.6em 1.2em;
+    font-size: 0.85em;
+    color: #666;
+    cursor: pointer;
+    font-weight: 600;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.add-project-btn:hover {
+    border-color: #A100FF;
+    color: #A100FF;
+}
+
+.project-item-edit {
+    position: relative;
+}
+
+.remove-project-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background-color: #FF4C4C;
+    color: white;
+    font-size: 0.75em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.project-item-edit:hover .remove-project-btn {
+    opacity: 1;
+}
+
+/* Popup overlay */
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup-form {
+    background-color: #fff;
+    border-radius: 13px;
+    padding: 2em;
+    width: 400px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+}
+
+.popup-form h4 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #222;
+}
+
+.popup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.popup-field label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+}
+
+.popup-field input {
+    padding: 0.5em 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+
+.popup-field input:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8em;
+    margin-top: 0.3em;
+}

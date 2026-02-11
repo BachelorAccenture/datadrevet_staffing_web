@@ -1,1 +1,92 @@
 /* KonsulenterPage styles */
+
+.konsulenter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 70%;
+    margin: 0 auto 1.5em auto;
+}
+
+.konsulenter-search {
+    padding: 0.5em 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95em;
+    width: 300px;
+    background-color: #fff;
+}
+
+.konsulenter-search:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.add-konsulent-button {
+    background-color: #A100FF;
+    color: white;
+    border: none;
+    padding: 0.55em 1.5em;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-konsulent-button:hover {
+    background-color: #8a00d9;
+}
+
+.konsulenter-list {
+    width: 70%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.konsulent-card {
+    background-color: #F6F4F4;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.7em 1.2em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.15s;
+}
+
+.konsulent-card:hover {
+    background-color: #ececec;
+    border-color: #A100FF;
+}
+
+.konsulent-info {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    align-items: center;
+}
+
+.konsulent-info h4 {
+    margin: 0;
+    font-size: 1em;
+    color: #222;
+}
+
+.konsulent-email {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.konsulent-arrow {
+    font-size: 1.1em;
+    color: #888;
+}
+
+.no-results {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 2em;
+}
