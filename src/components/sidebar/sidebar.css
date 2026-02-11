@@ -1,0 +1,61 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 14em;
+    border-right: rgb(148, 148, 148) solid 1px;
+}
+
+.logo {
+    position: relative;
+    top: 2em;
+    left: 1em;
+    height: 6em;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5em;
+    gap: 2em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    width: 60%;
+    padding: 0.4em;
+    border-radius: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    font-size: 1em;
+}
+
+.nav-item .icon {
+    width: 2em;
+    height: 1.8em;
+}
+
+.nav-item .icon-hover {
+    display: none;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background-color: #A100FF;
+    color: white;
+}
+
+.nav-item:hover .icon-default,
+.nav-item.active .icon-default {
+    display: none;
+}
+
+.nav-item:hover .icon-hover,
+.nav-item.active .icon-hover {
+    display: block;
+}

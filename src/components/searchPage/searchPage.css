@@ -1,0 +1,138 @@
+
+.header,
+.sub-header {
+    text-align: center;
+}
+
+.search-box {
+    background-color: #F6F4F4;
+    border: rgb(87, 87, 87) solid 1px;
+    width: 70%;
+    margin: 0 auto;
+    border-radius: 13px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 2em;
+}
+
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.filter-row {
+    display: flex;
+    gap: 1.5em;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    flex: 1;
+    min-width: 150px;
+    position: relative;
+}
+
+.filter-group label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.5em 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0.2em 0 0 0;
+    padding: 0.3em 0;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+    padding: 0.5em 0.8em;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.dropdown-item:hover {
+    background-color: #A100FF;
+    color: white;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sok-button {
+    background-color: #A100FF;
+    color: white;
+    border: none;
+    padding: 0.6em 2em;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.sok-button:hover {
+    background-color: #8a00d9;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-top: 0.3em;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    background-color: #D9D9D9;
+    color: black;
+    padding: 0.2em 0.6em;
+    border-radius: 20px;
+    font-size: 0.8em;
+}
+
+.chip-remove {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 1.1em;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.7;
+}
+
+.chip-remove:hover {
+    opacity: 1;
+}

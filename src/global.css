@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    background-color: #FFFFFF;
+    overflow-wrap: anywhere;
+}
+
+.app-layout {
+    display: flex;
+}
+
+.main-content {
+    margin-left: 13em;
+    flex: 1;
+}
+
+h1 {
+    font-size: 3em;
+    font-weight: bold;
+}

@@ -1,0 +1,200 @@
+.result-container {
+    width: 70%;
+    margin: 2em auto 0 auto;
+}
+
+.result-container h3 {
+    margin-bottom: 1em;
+    color: #333;
+}
+
+.no-results {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 2em;
+}
+
+.result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.result-card {
+    background-color: #F6F4F4;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.7em 1.2em;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.result-card:hover {
+    background-color: #ececec;
+}
+
+.result-card.expanded {
+    background-color: #F6F4F4;
+    border-color: #A100FF;
+    padding: 1em 1.2em;
+}
+
+.result-card-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-info h4 {
+    margin: 0;
+    font-size: 1em;
+    color: #222;
+}
+
+.expand-icon {
+    font-size: 0.7em;
+    color: #888;
+}
+
+.result-card-details {
+    margin-top: 1em;
+    padding-top: 0.8em;
+    border-top: 1px solid #ddd;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1em;
+}
+
+.details-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+.details-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+}
+
+.result-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3em;
+}
+
+.result-card-header h4 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #222;
+}
+
+.ledighet-badge {
+    padding: 0.2em 0.8em;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.ledighet-badge.ledig {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.ledighet-badge.ikke-ledig {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.result-email {
+    color: #666;
+    font-size: 0.85em;
+    margin: 0;
+}
+
+.result-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    margin-bottom: 0;
+}
+
+.result-detail {
+    display: flex;
+    gap: 0.4em;
+    font-size: 0.9em;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.85em;
+}
+
+.result-tags {
+    margin-bottom: 0.5em;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-top: 0.3em;
+}
+
+.tag {
+    background-color: #D9D9D9;
+    color: black;
+    padding: 0.2em 0.6em;
+    border-radius: 20px;
+    font-size: 0.75em;
+}
+
+.project-bubble {
+    display: flex;
+    flex-direction: column;
+    background-color: #D9D9D9;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.75em;
+}
+
+.project-name {
+    color: black;
+    padding: 0.3em 0.6em 0.1em 0.6em;
+    font-weight: 600;
+}
+
+.project-rolle {
+    color: #555;
+    padding: 0.1em 0.6em 0.3em 0.6em;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.bytte-badge {
+    padding: 0.2em 0.8em;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.bytte-badge.ja {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.bytte-badge.nei {
+    background-color: #f8d7da;
+    color: #721c24;
+}
