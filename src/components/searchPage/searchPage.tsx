@@ -1,20 +1,27 @@
-import { useState} from 'react'
+import { useState, useEffect } from 'react'
 import './searchPage.css'
 import '../../global.css'
 import type { Consultant } from '../../types/consultant'
 import { mockKonsulenter } from '../../data/mockData'
 import ResultList from '../resultList/resultList'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
-
-
-// BACKEND: Disse options-listene skal hentes fra backend API
-// Eksempel: const kompetanseOptions = await fetch('/api/kompetanse').then(r => r.json())
-const kompetanseOptions = ['React', 'TypeScript', 'Java', 'Python', 'C#', 'JavaScript', 'SQL', 'Azure', 'AWS']
-const erfaringOptions = ['Konsulent', 'Prosjektleder', 'Utvikler', 'Arkitekt', 'Tester', 'Scrum Master']
-const rolleOptions = ['Frontend', 'Backend', 'Fullstack', 'DevOps', 'Tech Lead', 'UX Designer']
-
+import { 
+  fetchSkills, 
+  fetchConsultants, 
+  fetchProjects,
+  extractUniqueRoles,
+  extractProjectRoles 
+} from '../../data/api'
 
 const SearchPage = () => {
+    // Filter options from backend
+    const [kompetanseOptions, setKompetanseOptions] = useState<string[]>([])
+    const [erfaringOptions, setErfaringOptions] = useState<string[]>([])
+    const [rolleOptions, setRolleOptions] = useState<string[]>([])
+    const [isLoadingOptions, setIsLoadingOptions] = useState(true)
+    const [optionsError, setOptionsError] = useState<string | null>(null)
+
+    // Filter states
     const [kompetanseList, setKompetanseList] = useState<string[]>([])
     const [tidFra, setTidFra] = useState('')
     const [tidTil, setTidTil] = useState('')
@@ -23,8 +30,44 @@ const SearchPage = () => {
     const [erfaringList, setErfaringList] = useState<string[]>([])
     const [rolleList, setRolleList] = useState<string[]>([])
 
-    // Resultater vises kun etter bruker har trykket "Søk"
+    // Search results
     const [resultater, setResultater] = useState<Consultant[] | null>(null)
+
+    // Fetch filter options on component mount
+    useEffect(() => {
+        const loadFilterOptions = async () => {
+            try {
+                setIsLoadingOptions(true)
+                setOptionsError(null)
+
+                // Fetch all data in parallel
+                const [skills, consultants, projects] = await Promise.all([
+                    fetchSkills(),
+                    fetchConsultants(),
+                    fetchProjects()
+                ])
+
+                // Set kompetanse options from skills
+                setKompetanseOptions(skills.map(skill => skill.name).sort())
+
+                // Extract unique roles from consultant experience (for "Tidligere erfaring")
+                const consultantRoles = extractUniqueRoles(consultants)
+                setErfaringOptions(consultantRoles)
+
+                // Extract unique roles from project requirements (for "Rolle")
+                const projectRoles = extractProjectRoles(projects)
+                setRolleOptions(projectRoles)
+
+            } catch (error) {
+                console.error('Error loading filter options:', error)
+                setOptionsError('Kunne ikke laste filteralternativer. Prøv igjen senere.')
+            } finally {
+                setIsLoadingOptions(false)
+            }
+        }
+
+        loadFilterOptions()
+    }, [])
 
     const handleSok = () => {
         /**
@@ -42,39 +85,32 @@ const SearchPage = () => {
          *   })
          *   const data: Konsulent[] = await response.json()
          *   setResultater(data)
-         * 
-         * All filtrering under kan da fjernes — backend håndterer det.
          */
 
         let filtrert = [...mockKonsulenter]
 
-        // Filtrer på kompetanse: konsulenten må ha minst én matchende kompetanse
         if (kompetanseList.length > 0) {
             filtrert = filtrert.filter(k =>
                 kompetanseList.some(komp => k.kompetanse.includes(komp))
             )
         }
 
-        // Filtrer på ledighet
         if (ledighet) {
             filtrert = filtrert.filter(k => k.ledighet === ledighet)
         }
 
-        // Filtrer på ønsker å bytte
         if (onskerABytte) {
             filtrert = filtrert.filter(k =>
                 onskerABytte === 'ja' ? k.onskerABytte : !k.onskerABytte
             )
         }
 
-        // Filtrer på rolle (sjekker rollene i konsulentens prosjekter)
         if (rolleList.length > 0) {
             filtrert = filtrert.filter(k =>
                 k.tidligereProsjekter.some(p => rolleList.includes(p.rolle))
             )
         }
 
-        // Filtrer på tidligere erfaring (sjekker om prosjektnavn inneholder søketeksten)
         if (erfaringList.length > 0) {
             filtrert = filtrert.filter(k =>
                 erfaringList.some(erfaring =>
@@ -85,10 +121,36 @@ const SearchPage = () => {
             )
         }
 
-        // BACKEND: tidFra/tidTil filtrering skjer på backend
-        // (mock data har ikke datoer, så vi hopper over det her)
-
         setResultater(filtrert)
+    }
+
+    // Show loading state while fetching options
+    if (isLoadingOptions) {
+        return (
+            <>
+                <div className='header'>
+                    <h1>Accenture Staffing</h1>
+                </div>
+                <div className='sub-header'>
+                    <h2>Laster søkealternativer...</h2>
+                </div>
+            </>
+        )
+    }
+
+    // Show error state if loading failed
+    if (optionsError) {
+        return (
+            <>
+                <div className='header'>
+                    <h1>Accenture Staffing</h1>
+                </div>
+                <div className='sub-header'>
+                    <h2>Feil ved lasting</h2>
+                    <p style={{ color: 'red' }}>{optionsError}</p>
+                </div>
+            </>
+        )
     }
 
     return (
@@ -174,7 +236,6 @@ const SearchPage = () => {
             </div>
         </div>
 
-        {/* Resultatlisten vises kun etter bruker har trykket Søk */}
         {resultater !== null && <ResultList resultater={resultater} />}
         </>
     );
