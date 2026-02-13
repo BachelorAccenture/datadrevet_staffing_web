@@ -7,16 +7,28 @@ export interface Skill {
   synonyms: string[];
 }
 
-export interface ConsultantFromAPI {
-  id: string;
-  name: string;
-  email: string;
-  projectAssignments?: Array<{
-    projectId: string;
-    projectName: string;
-    role: string;
-    isActive: boolean;
-  }>;
+export interface Consultant {
+    id: string;  // Backend uses UUID strings
+    name: string;
+    email: string;
+    yearsOfExperience: number;
+    availability: boolean;
+    wantsNewProject: boolean;
+    openToRelocation: boolean;
+    openToRemote: boolean;
+    preferredRegions: string[];
+    skills: Array<{
+        skillId: string;
+        skillName: string;
+        skillYearsOfExperience: number;
+    }>;
+    projectAssignments: Array<{
+        projectId: string;
+        projectName: string;
+        role: string;
+        allocationPercent: number;
+        isActive: boolean;
+    }>;
 }
 
 export interface Project {
@@ -33,7 +45,7 @@ export const fetchSkills = async (): Promise<Skill[]> => {
 };
 
 // Fetch all consultants
-export const fetchConsultants = async (): Promise<ConsultantFromAPI[]> => {
+export const fetchConsultants = async (): Promise<Consultant[]> => {
   const response = await fetch(`${API_BASE_URL}/consultants`);
   if (!response.ok) throw new Error('Failed to fetch consultants');
   return response.json();
@@ -45,9 +57,43 @@ export const fetchProjects = async (): Promise<Project[]> => {
   if (!response.ok) throw new Error('Failed to fetch projects');
   return response.json();
 };
+//  Search consultants
+export interface SearchFilters {
+  skillNames?: string[];
+  role?: string;
+  minYearsOfExperience?: number;
+}
+
+export const searchConsultants = async (filters: SearchFilters): Promise<Consultant[]> => {
+  const params = new URLSearchParams();
+  
+  // Add skill names as separate parameters
+  if (filters.skillNames && filters.skillNames.length > 0) {
+    filters.skillNames.forEach(skill => params.append('skillNames', skill));
+  }
+  
+  // Add role if provided
+  if (filters.role) {
+    params.append('role', filters.role);
+  }
+  
+  // Add minimum years of experience if provided
+  if (filters.minYearsOfExperience !== undefined) {
+    params.append('minYearsOfExperience', filters.minYearsOfExperience.toString());
+  }
+  
+  const url = `${API_BASE_URL}/consultants/search?${params.toString()}`;
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error('Failed to search consultants');
+  }
+  
+  return response.json();
+};
 
 // Extract unique roles from consultants' project history
-export const extractUniqueRoles = (consultants: ConsultantFromAPI[]): string[] => {
+export const extractUniqueRoles = (consultants: Consultant[]): string[] => {
   const rolesSet = new Set<string>();
   consultants.forEach(consultant => {
     consultant.projectAssignments?.forEach(assignment => {

@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import './searchPage.css'
 import '../../global.css'
-import type { Consultant } from '../../types/consultant'
-import { mockKonsulenter } from '../../data/mockData'
 import ResultList from '../resultList/resultList'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 import { 
@@ -10,7 +8,9 @@ import {
   fetchConsultants, 
   fetchProjects,
   extractUniqueRoles,
-  extractProjectRoles 
+  extractProjectRoles,
+  searchConsultants,
+  type Consultant
 } from '../../data/api'
 
 const SearchPage = () => {
@@ -30,8 +30,10 @@ const SearchPage = () => {
     const [selectedExperience, setSelectedExperience] = useState<string[]>([])
     const [selectedRoles, setSelectedRoles] = useState<string[]>([])
 
-    // Search results
+    // Search results and loading states
     const [results, setResults] = useState<Consultant[] | null>(null)
+    const [isSearching, setIsSearching] = useState(false)
+    const [searchError, setSearchError] = useState<string | null>(null)
 
     // Fetch filter options on component mount
     useEffect(() => {
@@ -40,23 +42,15 @@ const SearchPage = () => {
                 setIsLoadingOptions(true)
                 setOptionsError(null)
 
-                // Fetch all data in parallel
                 const [skills, consultants, projects] = await Promise.all([
                     fetchSkills(),
                     fetchConsultants(),
                     fetchProjects()
                 ])
 
-                // Set skills options
                 setSkillsOptions(skills.map(skill => skill.name).sort())
-
-                // Extract unique roles from consultant experience
-                const consultantRoles = extractUniqueRoles(consultants)
-                setExperienceOptions(consultantRoles)
-
-                // Extract unique roles from project requirements
-                const projectRoles = extractProjectRoles(projects)
-                setRoleOptions(projectRoles)
+                setExperienceOptions(extractUniqueRoles(consultants))
+                setRoleOptions(extractProjectRoles(projects))
 
             } catch (error) {
                 console.error('Error loading filter options:', error)
@@ -69,59 +63,55 @@ const SearchPage = () => {
         loadFilterOptions()
     }, [])
 
-    const handleSearch = () => {
-        /**
-         * BACKEND: Replace this entire filtering logic with an API call.
-         * 
-         * Example:
-         *   const response = await fetch('/api/consultants/search', {
-         *       method: 'POST',
-         *       headers: { 'Content-Type': 'application/json' },
-         *       body: JSON.stringify({
-         *           skills: selectedSkills,
-         *           startDate, endDate, availability,
-         *           wantsToSwitch, experience: selectedExperience, roles: selectedRoles
-         *       })
-         *   })
-         *   const data: Consultant[] = await response.json()
-         *   setResults(data)
-         */
+    const handleSearch = async () => {
+        try {
+            setIsSearching(true)
+            setSearchError(null)
 
-        let filtered = [...mockKonsulenter]
+            // Build search filters
+            const filters: any = {}
+            
+            if (selectedSkills.length > 0) {
+                filters.skillNames = selectedSkills
+            }
+            
+            if (selectedRoles.length > 0) {
+                // Backend accepts single role parameter
+                filters.role = selectedRoles[0]
+            }
+            
+            // You can add minYearsOfExperience if you have that filter
+            // filters.minYearsOfExperience = 0
 
-        if (selectedSkills.length > 0) {
-            filtered = filtered.filter(consultant =>
-                selectedSkills.some(skill => consultant.kompetanse.includes(skill))
-            )
+            // Call backend search API
+            const searchResults = await searchConsultants(filters)
+            
+            // Filter results client-side for fields not supported by backend
+            let filtered = searchResults
+
+            // Filter by availability (map to backend field)
+            if (availability === 'ledig') {
+                filtered = filtered.filter(c => c.availability === true)
+            } else if (availability === 'ikke-ledig') {
+                filtered = filtered.filter(c => c.availability === false)
+            }
+
+            // Filter by wants to switch
+            if (wantsToSwitch === 'ja') {
+                filtered = filtered.filter(c => c.wantsNewProject === true)
+            } else if (wantsToSwitch === 'nei') {
+                filtered = filtered.filter(c => c.wantsNewProject === false)
+            }
+
+            setResults(filtered)
+
+        } catch (error) {
+            console.error('Search error:', error)
+            setSearchError('Søket feilet. Prøv igjen senere.')
+            setResults([])
+        } finally {
+            setIsSearching(false)
         }
-
-        if (availability) {
-            filtered = filtered.filter(consultant => consultant.ledighet === availability)
-        }
-
-        if (wantsToSwitch) {
-            filtered = filtered.filter(consultant =>
-                wantsToSwitch === 'ja' ? consultant.onskerABytte : !consultant.onskerABytte
-            )
-        }
-
-        if (selectedRoles.length > 0) {
-            filtered = filtered.filter(consultant =>
-                consultant.tidligereProsjekter.some(project => selectedRoles.includes(project.rolle))
-            )
-        }
-
-        if (selectedExperience.length > 0) {
-            filtered = filtered.filter(consultant =>
-                selectedExperience.some(experience =>
-                    consultant.tidligereProsjekter.some(project =>
-                        project.navn.toLowerCase().includes(experience.toLowerCase())
-                    )
-                )
-            )
-        }
-
-        setResults(filtered)
     }
 
     // Show loading state while fetching options
@@ -231,12 +221,22 @@ const SearchPage = () => {
                 </div>
 
                 <div className='filter-actions'>
-                    <button className='sok-button' onClick={handleSearch}>Søk</button>
+                    <button 
+                        className='sok-button' 
+                        onClick={handleSearch}
+                        disabled={isSearching}
+                    >
+                        {isSearching ? 'Søker...' : 'Søk'}
+                    </button>
                 </div>
+
+                {searchError && (
+                    <p style={{ color: 'red', marginTop: '1em' }}>{searchError}</p>
+                )}
             </div>
         </div>
 
-        {results !== null && <ResultList resultater={results} />}
+        {results !== null && <ResultList results={results} />}
         </>
     );
 }
