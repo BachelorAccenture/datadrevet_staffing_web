@@ -15,23 +15,23 @@ import {
 
 const SearchPage = () => {
     // Filter options from backend
-    const [kompetanseOptions, setKompetanseOptions] = useState<string[]>([])
-    const [erfaringOptions, setErfaringOptions] = useState<string[]>([])
-    const [rolleOptions, setRolleOptions] = useState<string[]>([])
+    const [skillsOptions, setSkillsOptions] = useState<string[]>([])
+    const [experienceOptions, setExperienceOptions] = useState<string[]>([])
+    const [roleOptions, setRoleOptions] = useState<string[]>([])
     const [isLoadingOptions, setIsLoadingOptions] = useState(true)
     const [optionsError, setOptionsError] = useState<string | null>(null)
 
     // Filter states
-    const [kompetanseList, setKompetanseList] = useState<string[]>([])
-    const [tidFra, setTidFra] = useState('')
-    const [tidTil, setTidTil] = useState('')
-    const [ledighet, setLedighet] = useState('')
-    const [onskerABytte, setOnskerABytte] = useState('')
-    const [erfaringList, setErfaringList] = useState<string[]>([])
-    const [rolleList, setRolleList] = useState<string[]>([])
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+    const [startDate, setStartDate] = useState('')
+    const [endDate, setEndDate] = useState('')
+    const [availability, setAvailability] = useState('')
+    const [wantsToSwitch, setWantsToSwitch] = useState('')
+    const [selectedExperience, setSelectedExperience] = useState<string[]>([])
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([])
 
     // Search results
-    const [resultater, setResultater] = useState<Consultant[] | null>(null)
+    const [results, setResults] = useState<Consultant[] | null>(null)
 
     // Fetch filter options on component mount
     useEffect(() => {
@@ -47,16 +47,16 @@ const SearchPage = () => {
                     fetchProjects()
                 ])
 
-                // Set kompetanse options from skills
-                setKompetanseOptions(skills.map(skill => skill.name).sort())
+                // Set skills options
+                setSkillsOptions(skills.map(skill => skill.name).sort())
 
-                // Extract unique roles from consultant experience (for "Tidligere erfaring")
+                // Extract unique roles from consultant experience
                 const consultantRoles = extractUniqueRoles(consultants)
-                setErfaringOptions(consultantRoles)
+                setExperienceOptions(consultantRoles)
 
-                // Extract unique roles from project requirements (for "Rolle")
+                // Extract unique roles from project requirements
                 const projectRoles = extractProjectRoles(projects)
-                setRolleOptions(projectRoles)
+                setRoleOptions(projectRoles)
 
             } catch (error) {
                 console.error('Error loading filter options:', error)
@@ -69,59 +69,59 @@ const SearchPage = () => {
         loadFilterOptions()
     }, [])
 
-    const handleSok = () => {
+    const handleSearch = () => {
         /**
-         * BACKEND: Erstatt hele denne filtreringslogikken med et API-kall.
+         * BACKEND: Replace this entire filtering logic with an API call.
          * 
-         * Eksempel:
-         *   const response = await fetch('/api/konsulenter/search', {
+         * Example:
+         *   const response = await fetch('/api/consultants/search', {
          *       method: 'POST',
          *       headers: { 'Content-Type': 'application/json' },
          *       body: JSON.stringify({
-         *           kompetanse: kompetanseList,
-         *           tidFra, tidTil, ledighet,
-         *           onskerABytte, tidligereErfaring: erfaringList, rolle: rolleList
+         *           skills: selectedSkills,
+         *           startDate, endDate, availability,
+         *           wantsToSwitch, experience: selectedExperience, roles: selectedRoles
          *       })
          *   })
-         *   const data: Konsulent[] = await response.json()
-         *   setResultater(data)
+         *   const data: Consultant[] = await response.json()
+         *   setResults(data)
          */
 
-        let filtrert = [...mockKonsulenter]
+        let filtered = [...mockKonsulenter]
 
-        if (kompetanseList.length > 0) {
-            filtrert = filtrert.filter(k =>
-                kompetanseList.some(komp => k.kompetanse.includes(komp))
+        if (selectedSkills.length > 0) {
+            filtered = filtered.filter(consultant =>
+                selectedSkills.some(skill => consultant.kompetanse.includes(skill))
             )
         }
 
-        if (ledighet) {
-            filtrert = filtrert.filter(k => k.ledighet === ledighet)
+        if (availability) {
+            filtered = filtered.filter(consultant => consultant.ledighet === availability)
         }
 
-        if (onskerABytte) {
-            filtrert = filtrert.filter(k =>
-                onskerABytte === 'ja' ? k.onskerABytte : !k.onskerABytte
+        if (wantsToSwitch) {
+            filtered = filtered.filter(consultant =>
+                wantsToSwitch === 'ja' ? consultant.onskerABytte : !consultant.onskerABytte
             )
         }
 
-        if (rolleList.length > 0) {
-            filtrert = filtrert.filter(k =>
-                k.tidligereProsjekter.some(p => rolleList.includes(p.rolle))
+        if (selectedRoles.length > 0) {
+            filtered = filtered.filter(consultant =>
+                consultant.tidligereProsjekter.some(project => selectedRoles.includes(project.rolle))
             )
         }
 
-        if (erfaringList.length > 0) {
-            filtrert = filtrert.filter(k =>
-                erfaringList.some(erfaring =>
-                    k.tidligereProsjekter.some(p =>
-                        p.navn.toLowerCase().includes(erfaring.toLowerCase())
+        if (selectedExperience.length > 0) {
+            filtered = filtered.filter(consultant =>
+                selectedExperience.some(experience =>
+                    consultant.tidligereProsjekter.some(project =>
+                        project.navn.toLowerCase().includes(experience.toLowerCase())
                     )
                 )
             )
         }
 
-        setResultater(filtrert)
+        setResults(filtered)
     }
 
     // Show loading state while fetching options
@@ -167,18 +167,18 @@ const SearchPage = () => {
                     <MultiSelectDropdown
                         label='Kompetanse'
                         placeholder='Søk kompetanse...'
-                        options={kompetanseOptions}
-                        selected={kompetanseList}
-                        onAdd={(v) => setKompetanseList([...kompetanseList, v])}
-                        onRemove={(v) => setKompetanseList(kompetanseList.filter(i => i !== v))}
+                        options={skillsOptions}
+                        selected={selectedSkills}
+                        onAdd={(value) => setSelectedSkills([...selectedSkills, value])}
+                        onRemove={(value) => setSelectedSkills(selectedSkills.filter(item => item !== value))}
                     />
 
                     <div className='filter-group'>
                         <label>Tid fra</label>
                         <input
                             type='date'
-                            value={tidFra}
-                            onChange={(e) => setTidFra(e.target.value)}
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
                         />
                     </div>
 
@@ -186,14 +186,14 @@ const SearchPage = () => {
                         <label>Tid til</label>
                         <input
                             type='date'
-                            value={tidTil}
-                            onChange={(e) => setTidTil(e.target.value)}
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
                         />
                     </div>
 
                     <div className='filter-group'>
                         <label>Ledighet</label>
-                        <select value={ledighet} onChange={(e) => setLedighet(e.target.value)}>
+                        <select value={availability} onChange={(e) => setAvailability(e.target.value)}>
                             <option value=''>Velg...</option>
                             <option value='ledig'>Ledig</option>
                             <option value='ikke-ledig'>Ikke ledig</option>
@@ -204,7 +204,7 @@ const SearchPage = () => {
                 <div className='filter-row'>
                     <div className='filter-group'>
                         <label>Ønsker å bytte</label>
-                        <select value={onskerABytte} onChange={(e) => setOnskerABytte(e.target.value)}>
+                        <select value={wantsToSwitch} onChange={(e) => setWantsToSwitch(e.target.value)}>
                             <option value=''>Velg...</option>
                             <option value='ja'>Ja</option>
                             <option value='nei'>Nei</option>
@@ -214,29 +214,29 @@ const SearchPage = () => {
                     <MultiSelectDropdown
                         label='Tidligere erfaring'
                         placeholder='Søk erfaring...'
-                        options={erfaringOptions}
-                        selected={erfaringList}
-                        onAdd={(v) => setErfaringList([...erfaringList, v])}
-                        onRemove={(v) => setErfaringList(erfaringList.filter(i => i !== v))}
+                        options={experienceOptions}
+                        selected={selectedExperience}
+                        onAdd={(value) => setSelectedExperience([...selectedExperience, value])}
+                        onRemove={(value) => setSelectedExperience(selectedExperience.filter(item => item !== value))}
                     />
 
                     <MultiSelectDropdown
                         label='Rolle'
                         placeholder='Søk rolle...'
-                        options={rolleOptions}
-                        selected={rolleList}
-                        onAdd={(v) => setRolleList([...rolleList, v])}
-                        onRemove={(v) => setRolleList(rolleList.filter(i => i !== v))}
+                        options={roleOptions}
+                        selected={selectedRoles}
+                        onAdd={(value) => setSelectedRoles([...selectedRoles, value])}
+                        onRemove={(value) => setSelectedRoles(selectedRoles.filter(item => item !== value))}
                     />
                 </div>
 
                 <div className='filter-actions'>
-                    <button className='sok-button' onClick={handleSok}>Søk</button>
+                    <button className='sok-button' onClick={handleSearch}>Søk</button>
                 </div>
             </div>
         </div>
 
-        {resultater !== null && <ResultList resultater={resultater} />}
+        {results !== null && <ResultList resultater={results} />}
         </>
     );
 }
