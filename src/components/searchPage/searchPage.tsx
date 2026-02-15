@@ -5,6 +5,7 @@ import ResultList from '../resultList/resultList'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 import { 
   fetchSkills, 
+  fetchCompanies,
   fetchConsultants, 
   fetchProjects,
   extractUniqueRoles,
@@ -16,7 +17,7 @@ import {
 const SearchPage = () => {
     // Filter options from backend
     const [skillsOptions, setSkillsOptions] = useState<string[]>([])
-    const [experienceOptions, setExperienceOptions] = useState<string[]>([])
+    const [companyOptions, setCompanyOptions] = useState<string[]>([])
     const [roleOptions, setRoleOptions] = useState<string[]>([])
     const [isLoadingOptions, setIsLoadingOptions] = useState(true)
     const [optionsError, setOptionsError] = useState<string | null>(null)
@@ -27,8 +28,10 @@ const SearchPage = () => {
     const [endDate, setEndDate] = useState('')
     const [availability, setAvailability] = useState('')
     const [wantsToSwitch, setWantsToSwitch] = useState('')
-    const [selectedExperience, setSelectedExperience] = useState<string[]>([])
+    const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
     const [selectedRoles, setSelectedRoles] = useState<string[]>([])
+    const [openToRemote, setOpenToRemote] = useState('')
+    const [openToRelocation, setOpenToRelocation] = useState('')
 
     // Search results and loading states
     const [results, setResults] = useState<Consultant[] | null>(null)
@@ -42,15 +45,16 @@ const SearchPage = () => {
                 setIsLoadingOptions(true)
                 setOptionsError(null)
 
-                const [skills, consultants, projects] = await Promise.all([
+                const [skills, companies, consultants, projects] = await Promise.all([
                     fetchSkills(),
+                    fetchCompanies(),
                     fetchConsultants(),
                     fetchProjects()
                 ])
 
                 setSkillsOptions(skills.map(skill => skill.name).sort())
-                setExperienceOptions(extractUniqueRoles(consultants))
-                setRoleOptions(extractProjectRoles(projects))
+                setCompanyOptions(companies.map(company => company.name).sort())
+                setRoleOptions(extractUniqueRoles(consultants))
 
             } catch (error) {
                 console.error('Error loading filter options:', error)
@@ -68,42 +72,62 @@ const SearchPage = () => {
             setIsSearching(true)
             setSearchError(null)
 
-            // Build search filters
+            // Build search filters - all filtering happens in backend now
             const filters: any = {}
             
+            // Skills filter
             if (selectedSkills.length > 0) {
                 filters.skillNames = selectedSkills
             }
             
+            // Roles filter - now supports multiple roles
             if (selectedRoles.length > 0) {
-                // Backend accepts single role parameter
-                filters.role = selectedRoles[0]
+                filters.role = selectedRoles[0] // Backend currently supports single role search
             }
             
-            // You can add minYearsOfExperience if you have that filter
-            // filters.minYearsOfExperience = 0
+            // Previous experience/companies filter
+            if (selectedCompanies.length > 0) {
+                filters.previousCompanies = selectedCompanies
+            }
+            
+            // Boolean filters
+            if (availability === 'ledig') {
+                filters.availability = true
+            } else if (availability === 'ikke-ledig') {
+                filters.availability = false
+            }
+            
+            if (wantsToSwitch === 'ja') {
+                filters.wantsNewProject = true
+            } else if (wantsToSwitch === 'nei') {
+                filters.wantsNewProject = false
+            }
+            
+            if (openToRemote === 'ja') {
+                filters.openToRemote = true
+            } else if (openToRemote === 'nei') {
+                filters.openToRemote = false
+            }
+            
+            if (openToRelocation === 'ja') {
+                filters.openToRelocation = true
+            } else if (openToRelocation === 'nei') {
+                filters.openToRelocation = false
+            }
+            
+            // Date range filter (convert to Unix timestamp in milliseconds)
+            if (startDate) {
+                filters.startDate = new Date(startDate).getTime()
+            }
+            
+            if (endDate) {
+                filters.endDate = new Date(endDate).getTime()
+            }
 
-            // Call backend search API
+            // Call backend search API - all filtering is done server-side
             const searchResults = await searchConsultants(filters)
             
-            // Filter results client-side for fields not supported by backend
-            let filtered = searchResults
-
-            // Filter by availability (map to backend field)
-            if (availability === 'ledig') {
-                filtered = filtered.filter(c => c.availability === true)
-            } else if (availability === 'ikke-ledig') {
-                filtered = filtered.filter(c => c.availability === false)
-            }
-
-            // Filter by wants to switch
-            if (wantsToSwitch === 'ja') {
-                filtered = filtered.filter(c => c.wantsNewProject === true)
-            } else if (wantsToSwitch === 'nei') {
-                filtered = filtered.filter(c => c.wantsNewProject === false)
-            }
-
-            setResults(filtered)
+            setResults(searchResults)
 
         } catch (error) {
             console.error('Search error:', error)
@@ -203,11 +227,11 @@ const SearchPage = () => {
 
                     <MultiSelectDropdown
                         label='Tidligere erfaring'
-                        placeholder='Søk erfaring...'
-                        options={experienceOptions}
-                        selected={selectedExperience}
-                        onAdd={(value) => setSelectedExperience([...selectedExperience, value])}
-                        onRemove={(value) => setSelectedExperience(selectedExperience.filter(item => item !== value))}
+                        placeholder='Søk bedrift...'
+                        options={companyOptions}
+                        selected={selectedCompanies}
+                        onAdd={(value) => setSelectedCompanies([...selectedCompanies, value])}
+                        onRemove={(value) => setSelectedCompanies(selectedCompanies.filter(item => item !== value))}
                     />
 
                     <MultiSelectDropdown
@@ -218,6 +242,26 @@ const SearchPage = () => {
                         onAdd={(value) => setSelectedRoles([...selectedRoles, value])}
                         onRemove={(value) => setSelectedRoles(selectedRoles.filter(item => item !== value))}
                     />
+                    
+                    <div className='filter-group'>
+                        <label>Åpen for remote</label>
+                        <select value={openToRemote} onChange={(e) => setOpenToRemote(e.target.value)}>
+                            <option value=''>Velg...</option>
+                            <option value='ja'>Ja</option>
+                            <option value='nei'>Nei</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className='filter-row'>
+                    <div className='filter-group'>
+                        <label>Åpen for relokasjon</label>
+                        <select value={openToRelocation} onChange={(e) => setOpenToRelocation(e.target.value)}>
+                            <option value=''>Velg...</option>
+                            <option value='ja'>Ja</option>
+                            <option value='nei'>Nei</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className='filter-actions'>

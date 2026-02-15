@@ -7,8 +7,14 @@ export interface Skill {
   synonyms: string[];
 }
 
+export interface Company {
+  id: string;
+  name: string;
+  field: string;
+}
+
 export interface Consultant {
-    id: string;  // Backend uses UUID strings
+    id: string;
     name: string;
     email: string;
     yearsOfExperience: number;
@@ -44,6 +50,13 @@ export const fetchSkills = async (): Promise<Skill[]> => {
   return response.json();
 };
 
+// Fetch all companies
+export const fetchCompanies = async (): Promise<Company[]> => {
+  const response = await fetch(`${API_BASE_URL}/companies`);
+  if (!response.ok) throw new Error('Failed to fetch companies');
+  return response.json();
+};
+
 // Fetch all consultants
 export const fetchConsultants = async (): Promise<Consultant[]> => {
   const response = await fetch(`${API_BASE_URL}/consultants`);
@@ -57,13 +70,22 @@ export const fetchProjects = async (): Promise<Project[]> => {
   if (!response.ok) throw new Error('Failed to fetch projects');
   return response.json();
 };
-//  Search consultants
+
+// Search filters interface
 export interface SearchFilters {
   skillNames?: string[];
   role?: string;
   minYearsOfExperience?: number;
+  availability?: boolean;
+  wantsNewProject?: boolean;
+  openToRemote?: boolean;
+  openToRelocation?: boolean;
+  previousCompanies?: string[];  // Company names (e.g., "Amazon", "Google")
+  startDate?: number;  // Unix timestamp (milliseconds)
+  endDate?: number;    // Unix timestamp (milliseconds)
 }
 
+// Search consultants with all filters
 export const searchConsultants = async (filters: SearchFilters): Promise<Consultant[]> => {
   const params = new URLSearchParams();
   
@@ -77,9 +99,40 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
     params.append('role', filters.role);
   }
   
-  // Add minimum years of experience if provided
+  // Add minimum years of experience
   if (filters.minYearsOfExperience !== undefined) {
     params.append('minYearsOfExperience', filters.minYearsOfExperience.toString());
+  }
+  
+  // Add boolean filters
+  if (filters.availability !== undefined) {
+    params.append('availability', filters.availability.toString());
+  }
+  
+  if (filters.wantsNewProject !== undefined) {
+    params.append('wantsNewProject', filters.wantsNewProject.toString());
+  }
+  
+  if (filters.openToRemote !== undefined) {
+    params.append('openToRemote', filters.openToRemote.toString());
+  }
+  
+  if (filters.openToRelocation !== undefined) {
+    params.append('openToRelocation', filters.openToRelocation.toString());
+  }
+  
+  // Add previous companies as separate parameters
+  if (filters.previousCompanies && filters.previousCompanies.length > 0) {
+    filters.previousCompanies.forEach(company => params.append('previousCompanies', company));
+  }
+  
+  // Add date range
+  if (filters.startDate !== undefined) {
+    params.append('startDate', filters.startDate.toString());
+  }
+  
+  if (filters.endDate !== undefined) {
+    params.append('endDate', filters.endDate.toString());
   }
   
   const url = `${API_BASE_URL}/consultants/search?${params.toString()}`;
@@ -92,7 +145,19 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
   return response.json();
 };
 
-// Extract unique roles from consultants' project history
+// Extract unique companies from consultants' project history
+export const extractUniqueCompanies = (consultants: Consultant[]): string[] => {
+  const companiesSet = new Set<string>();
+  
+  // We need to fetch companies from the projects the consultants worked on
+  // This is a placeholder - you'll need to enhance the Consultant interface
+  // to include company information in projectAssignments
+  
+  // For now, return empty array - will be populated from fetchCompanies() instead
+  return Array.from(companiesSet).sort();
+};
+
+// Extract unique roles from consultants' project history  
 export const extractUniqueRoles = (consultants: Consultant[]): string[] => {
   const rolesSet = new Set<string>();
   consultants.forEach(consultant => {
