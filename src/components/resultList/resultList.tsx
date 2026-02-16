@@ -3,7 +3,7 @@ import type { Consultant } from '../../data/api'
 import './resultList.css'
 
 interface ResultListProps {
-    results: Consultant[]  // Changed from 'resultater' to 'results'
+    results: Consultant[]  
 }
 
 const ResultList = ({ results }: ResultListProps) => {
