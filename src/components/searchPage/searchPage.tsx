@@ -9,7 +9,6 @@ import {
   fetchConsultants, 
   fetchProjects,
   extractUniqueRoles,
-  extractProjectRoles,
   searchConsultants,
   type Consultant
 } from '../../data/api'
@@ -45,7 +44,7 @@ const SearchPage = () => {
                 setIsLoadingOptions(true)
                 setOptionsError(null)
 
-                const [skills, companies, consultants, projects] = await Promise.all([
+                const [skills, companies, consultants] = await Promise.all([
                     fetchSkills(),
                     fetchCompanies(),
                     fetchConsultants(),
