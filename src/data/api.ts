@@ -64,6 +64,13 @@ export const fetchConsultants = async (): Promise<Consultant[]> => {
   return response.json();
 };
 
+// Fetch a single consultant by ID
+export const fetchConsultantById = async (id: string): Promise<Consultant> => {
+  const response = await fetch(`${API_BASE_URL}/consultants/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch consultant');
+  return response.json();
+};
+
 // Search filters interface
 export interface SearchFilters {
   skillNames?: string[];

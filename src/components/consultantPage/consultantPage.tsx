@@ -1,4 +1,4 @@
-import './konsulenterPage.css'
+import './consultantPage.css'
 import '../../global.css'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
