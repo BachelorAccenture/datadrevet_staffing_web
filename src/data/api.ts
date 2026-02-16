@@ -20,9 +20,7 @@ export interface Consultant {
     yearsOfExperience: number;
     availability: boolean;
     wantsNewProject: boolean;
-    openToRelocation: boolean;
     openToRemote: boolean;
-    preferredRegions: string[];
     skills: Array<{
         skillId: string;
         skillName: string;
@@ -86,9 +84,7 @@ export interface UpdateConsultantPayload {
   yearsOfExperience: number;
   availability: boolean;
   wantsNewProject: boolean;
-  openToRelocation: boolean;
   openToRemote: boolean;
-  preferredRegions: string[];
 }
 
 // Update a consultant by ID
@@ -110,7 +106,6 @@ export interface SearchFilters {
   availability?: boolean;
   wantsNewProject?: boolean;
   openToRemote?: boolean;
-  openToRelocation?: boolean;
   previousCompanies?: string[];  // Company names (e.g., "Amazon", "Google")
   startDate?: number;  // Unix timestamp (milliseconds)
   endDate?: number;    // Unix timestamp (milliseconds)
@@ -148,9 +143,6 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
     params.append('openToRemote', filters.openToRemote.toString());
   }
   
-  if (filters.openToRelocation !== undefined) {
-    params.append('openToRelocation', filters.openToRelocation.toString());
-  }
   
   // Add previous companies as separate parameters
   if (filters.previousCompanies && filters.previousCompanies.length > 0) {
