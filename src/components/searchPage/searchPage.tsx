@@ -31,7 +31,6 @@ const SearchPage = () => {
     const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
     const [selectedRoles, setSelectedRoles] = useState<string[]>([])
     const [openToRemote, setOpenToRemote] = useState('')
-    const [openToRelocation, setOpenToRelocation] = useState('')
 
     // Search results and loading states
     const [results, setResults] = useState<Consultant[] | null>(null)
@@ -107,12 +106,6 @@ const SearchPage = () => {
                 filters.openToRemote = true
             } else if (openToRemote === 'nei') {
                 filters.openToRemote = false
-            }
-            
-            if (openToRelocation === 'ja') {
-                filters.openToRelocation = true
-            } else if (openToRelocation === 'nei') {
-                filters.openToRelocation = false
             }
             
             // Date range filter (convert to Unix timestamp in milliseconds)
@@ -246,17 +239,6 @@ const SearchPage = () => {
                     <div className='filter-group'>
                         <label>Åpen for remote</label>
                         <select value={openToRemote} onChange={(e) => setOpenToRemote(e.target.value)}>
-                            <option value=''>Velg...</option>
-                            <option value='ja'>Ja</option>
-                            <option value='nei'>Nei</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className='filter-row'>
-                    <div className='filter-group'>
-                        <label>Åpen for relokasjon</label>
-                        <select value={openToRelocation} onChange={(e) => setOpenToRelocation(e.target.value)}>
                             <option value=''>Velg...</option>
                             <option value='ja'>Ja</option>
                             <option value='nei'>Nei</option>
