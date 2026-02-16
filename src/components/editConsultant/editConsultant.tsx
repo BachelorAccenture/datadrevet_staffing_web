@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { type Consultant, fetchConsultantById, deleteConsultant } from '../../data/api'
+import { type Consultant, fetchConsultantById, deleteConsultant, updateConsultant } from '../../data/api'
 import './editConsultant.css'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 
@@ -47,23 +47,24 @@ const EditConsultant = () => {
         loadConsultant()
     }, [id])
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!consultant) return
-        const updated = {
-            ...consultant,
-            name,
-            email,
-            availability,
-            wantsNewProject,
+        try {
+            await updateConsultant(id!, {
+                name,
+                email,
+                yearsOfExperience: consultant.yearsOfExperience,
+                availability,
+                wantsNewProject,
+                openToRelocation: consultant.openToRelocation,
+                openToRemote: consultant.openToRemote,
+                preferredRegions: consultant.preferredRegions,
+            })
+            navigate('/konsulenter')
+        } catch (err) {
+            console.error('Feil ved lagring:', err)
+            alert('Kunne ikke lagre endringene. Prøv igjen senere.')
         }
-        console.log('Lagrer konsulent:', updated)
-        // BACKEND: Erstatt med PUT API-kall
-        // await fetch(`${API_BASE_URL}/consultants/${id}`, {
-        //     method: 'PUT',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(updated)
-        // })
-        navigate('/konsulenter')
     }
 
     const handleDelete = async () => {

@@ -79,6 +79,29 @@ export const deleteConsultant = async (id: string): Promise<void> => {
   if (!response.ok) throw new Error('Failed to delete consultant');
 };
 
+// Update consultant payload (does not affect skills or project assignments)
+export interface UpdateConsultantPayload {
+  name: string;
+  email: string;
+  yearsOfExperience: number;
+  availability: boolean;
+  wantsNewProject: boolean;
+  openToRelocation: boolean;
+  openToRemote: boolean;
+  preferredRegions: string[];
+}
+
+// Update a consultant by ID
+export const updateConsultant = async (id: string, data: UpdateConsultantPayload): Promise<Consultant> => {
+  const response = await fetch(`${API_BASE_URL}/consultants/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update consultant');
+  return response.json();
+};
+
 // Search filters interface
 export interface SearchFilters {
   skillNames?: string[];
