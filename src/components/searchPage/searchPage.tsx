@@ -7,7 +7,6 @@ import {
   fetchSkills, 
   fetchCompanies,
   fetchConsultants, 
-  fetchProjects,
   extractUniqueRoles,
   searchConsultants,
   type Consultant
@@ -47,7 +46,6 @@ const SearchPage = () => {
                     fetchSkills(),
                     fetchCompanies(),
                     fetchConsultants(),
-                    fetchProjects()
                 ])
 
                 setSkillsOptions(skills.map(skill => skill.name).sort())
