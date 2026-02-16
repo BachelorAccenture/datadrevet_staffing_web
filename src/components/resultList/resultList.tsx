@@ -29,11 +29,24 @@ const ResultList = ({ results }: ResultListProps) => {
                 {results.map(consultant => (
                     <div key={consultant.id} className={`result-card ${expandedId === consultant.id ? 'expanded' : ''}`}>
                         <div className='result-card-summary' onClick={() => toggleExpand(consultant.id)}>
-                            <div className='summary-info'>
+
+                            <div className='summary-name'>
                                 <h4>{consultant.name}</h4>
+                            </div>
+
+                            <div className='summary-email'>
                                 <span className='result-email'>{consultant.email}</span>
                             </div>
-                            <span className='expand-icon'>{expandedId === consultant.id ? '▲' : '▼'}</span>
+
+                            <div className='summary-tags'>
+                                <span className={`tag tag--status ${consultant.availability ? 'tag--positive' : 'tag--negative'}`}>
+                                    {consultant.availability ? 'Ledig' : 'Ikke ledig'}
+                                </span>
+                                <span className={`tag tag--status ${consultant.wantsNewProject ? 'tag--positive' : 'tag--negative'}`}>
+                                    {consultant.wantsNewProject ? 'Vil ta nytt prosjekt' : 'Vil ikke ta nytt prosjekt'}
+                                </span>
+                            </div>
+                            <span className='expand-icon'>{expandedId === consultant.id ? '▲' : '▼'}</span> 
                         </div>
 
                         {expandedId === consultant.id && (

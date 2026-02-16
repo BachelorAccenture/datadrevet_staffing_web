@@ -16,12 +16,16 @@
 }
 
 .result-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    column-gap: 1.5em;
+    row-gap: 0.3em;
 }
 
 .result-card {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
     background-color: #F6F4F4;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -41,29 +45,43 @@
 }
 
 .result-card-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.summary-info {
+    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: subgrid;
     align-items: center;
 }
 
-.summary-info h4 {
+.summary-name h4 {
     margin: 0;
     font-size: 1em;
     color: #222;
+    white-space: nowrap;
+}
+
+.summary-email {
+    min-width: 0;
+}
+
+.summary-email .result-email {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.summary-tags {
+    display: flex;
+    gap: 0.5em;
 }
 
 .expand-icon {
     font-size: 0.7em;
     color: #888;
+    text-align: right;
 }
 
 .result-card-details {
+    grid-column: 1 / -1;
     margin-top: 1em;
     padding-top: 0.8em;
     border-top: 1px solid #ddd;
@@ -159,6 +177,7 @@
     padding: 0.2em 0.6em;
     border-radius: 20px;
     font-size: 0.75em;
+    display: inline-block;
 }
 
 .project-bubble {
@@ -199,3 +218,29 @@
     background-color: #f8d7da;
     color: #721c24;
 }
+
+
+.status {
+    font-weight: 600;
+}
+
+.tag--status {
+    position: relative;
+    font-size: 0.7em;
+    font-weight: 600;
+}
+
+.tag--positive {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.tag--negative {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+
+
+
+
