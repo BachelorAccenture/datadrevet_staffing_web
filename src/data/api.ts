@@ -71,6 +71,14 @@ export const fetchConsultantById = async (id: string): Promise<Consultant> => {
   return response.json();
 };
 
+// Delete a consultant by ID
+export const deleteConsultant = async (id: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/consultants/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete consultant');
+};
+
 // Search filters interface
 export interface SearchFilters {
   skillNames?: string[];

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { type Consultant, fetchConsultantById } from '../../data/api'
+import { type Consultant, fetchConsultantById, deleteConsultant } from '../../data/api'
 import './editConsultant.css'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 
@@ -66,11 +66,19 @@ const EditConsultant = () => {
         navigate('/konsulenter')
     }
 
-    const handleDelete = () => {
-        console.log('Sletter konsulent med ID:', id)
-        // BACKEND: Erstatt med DELETE API-kall
-        // await fetch(`${API_BASE_URL}/consultants/${id}`, { method: 'DELETE' })
-        navigate('/konsulenter')
+    const handleDelete = async () => {
+        const confirmed = window.confirm(
+            `Er du sikker på at du vil slette ${name}? Denne handlingen kan ikke angres.`
+        )
+        if (!confirmed) return
+
+        try {
+            await deleteConsultant(id!)
+            navigate('/konsulenter')
+        } catch (err) {
+            console.error('Feil ved sletting:', err)
+            alert('Kunne ikke slette konsulenten. Prøv igjen senere.')
+        }
     }
 
     if (isLoading) {
