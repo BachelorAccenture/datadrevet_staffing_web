@@ -1,25 +1,68 @@
 import './konsulenterPage.css'
 import '../../global.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { mockKonsulenter } from '../../data/mockData'
-
-/**
- * BACKEND: Erstatt mockKonsulenter med et API-kall:
- *   useEffect(() => {
- *       fetch('/api/konsulenter')
- *           .then(r => r.json())
- *           .then(data => setKonsulenter(data))
- *   }, [])
- */
+import { fetchConsultants, type Consultant } from '../../data/api'
 
 const KonsulenterPage = () => {
     const navigate = useNavigate()
     const [search, setSearch] = useState('')
+    const [consultants, setConsultants] = useState<Consultant[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
-    const filtrert = mockKonsulenter.filter(k =>
-        k.navn.toLowerCase().includes(search.toLowerCase())
+    // Fetch consultants on component mount
+    useEffect(() => {
+        const loadConsultants = async () => {
+            try {
+                setIsLoading(true)
+                setError(null)
+                const data = await fetchConsultants()
+                setConsultants(data)
+            } catch (err) {
+                console.error('Error fetching consultants:', err)
+                setError('Kunne ikke laste konsulenter. Prøv igjen senere.')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        loadConsultants()
+    }, [])
+
+    // Filter consultants by search term
+    const filtrert = consultants.filter(k =>
+        k.name.toLowerCase().includes(search.toLowerCase()) ||
+        k.email.toLowerCase().includes(search.toLowerCase())
     )
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <>
+                <div className='header'>
+                    <h1>Konsulenter</h1>
+                </div>
+                <div className='konsulenter-toolbar'>
+                    <p>Laster konsulenter...</p>
+                </div>
+            </>
+        )
+    }
+
+    // Show error state
+    if (error) {
+        return (
+            <>
+                <div className='header'>
+                    <h1>Konsulenter</h1>
+                </div>
+                <div className='konsulenter-toolbar'>
+                    <p style={{ color: 'red' }}>{error}</p>
+                </div>
+            </>
+        )
+    }
 
     return (
         <>
@@ -31,7 +74,7 @@ const KonsulenterPage = () => {
                 <input
                     type='text'
                     className='konsulenter-search'
-                    placeholder='Søk etter navn...'
+                    placeholder='Søk etter navn eller e-post...'
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
@@ -45,7 +88,9 @@ const KonsulenterPage = () => {
 
             <div className='konsulenter-list'>
                 {filtrert.length === 0 ? (
-                    <p className='no-results'>Ingen konsulenter funnet.</p>
+                    <p className='no-results'>
+                        {search ? 'Ingen konsulenter funnet.' : 'Ingen konsulenter registrert.'}
+                    </p>
                 ) : (
                     filtrert.map(konsulent => (
                         <div
@@ -54,8 +99,8 @@ const KonsulenterPage = () => {
                             onClick={() => navigate(`/konsulenter/edit/${konsulent.id}`)}
                         >
                             <div className='konsulent-info'>
-                                <h4>{konsulent.navn}</h4>
-                                <span className='konsulent-email'>{konsulent.epost}</span>
+                                <h4>{konsulent.name}</h4>
+                                <span className='konsulent-email'>{konsulent.email}</span>
                             </div>
                             <span className='konsulent-arrow'>→</span>
                         </div>
