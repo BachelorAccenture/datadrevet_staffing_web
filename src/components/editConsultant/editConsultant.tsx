@@ -532,7 +532,11 @@ const EditConsultant = () => {
                                 min={0}
                                 max={100}
                                 value={assignAllocation}
-                                onChange={e => setAssignAllocation(parseInt(e.target.value) || 0)}
+                                onChange={e => {
+                                    const raw = Number(e.target.value);
+                                    const sanitized = Number.isNaN(raw) ? 0 : Math.min(100, Math.max(0, raw));
+                                    setAssignAllocation(sanitized);
+                                }}
                             />
                         </div>
                         <div className='popup-field'>
