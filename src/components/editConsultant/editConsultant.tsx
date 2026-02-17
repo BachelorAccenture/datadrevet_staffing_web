@@ -417,7 +417,10 @@ const EditConsultant = () => {
                                 type='number'
                                 min={0}
                                 value={skillYears}
-                                onChange={e => setSkillYears(parseInt(e.target.value) || 0)}
+                                onChange={e => {
+                                    const value = parseInt(e.target.value, 10)
+                                    setSkillYears(Number.isNaN(value) || value < 0 ? 0 : value)
+                                }}
                             />
                         </div>
 
