@@ -56,9 +56,7 @@ const EditConsultant = () => {
                 yearsOfExperience: consultant.yearsOfExperience,
                 availability,
                 wantsNewProject,
-                openToRelocation: consultant.openToRelocation,
                 openToRemote: consultant.openToRemote,
-                preferredRegions: consultant.preferredRegions,
             })
             navigate('/konsulenter')
         } catch (err) {
