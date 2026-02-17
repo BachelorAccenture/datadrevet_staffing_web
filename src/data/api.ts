@@ -1,4 +1,4 @@
-// src/services/api.ts
+// src/data/api.ts
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 export interface Skill {
@@ -38,38 +38,79 @@ export interface Consultant {
 export interface Project {
   id: string;
   name: string;
+  requirements: string[];
+  startDate: string;
+  endDate: string;
+  company: Company | null;
   roles?: Record<string, number>;
 }
 
-// Fetch all skills
+// ── Skill endpoints ─────────────────────────────────────────
+
 export const fetchSkills = async (): Promise<Skill[]> => {
   const response = await fetch(`${API_BASE_URL}/skills`);
   if (!response.ok) throw new Error('Failed to fetch skills');
   return response.json();
 };
 
-// Fetch all companies
+export const createSkill = async (name: string, synonyms: string[] = []): Promise<Skill> => {
+  const response = await fetch(`${API_BASE_URL}/skills`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, synonyms }),
+  });
+  if (!response.ok) throw new Error('Failed to create skill');
+  return response.json();
+};
+
+// ── Company endpoints ───────────────────────────────────────
+
 export const fetchCompanies = async (): Promise<Company[]> => {
   const response = await fetch(`${API_BASE_URL}/companies`);
   if (!response.ok) throw new Error('Failed to fetch companies');
   return response.json();
 };
 
-// Fetch all consultants
+// ── Project endpoints ───────────────────────────────────────
+
+export const fetchProjects = async (): Promise<Project[]> => {
+  const response = await fetch(`${API_BASE_URL}/projects`);
+  if (!response.ok) throw new Error('Failed to fetch projects');
+  return response.json();
+};
+
+export interface CreateProjectPayload {
+  name: string;
+  requirements?: string[];
+  startDate?: string;
+  endDate?: string;
+  companyId?: string;
+}
+
+export const createProject = async (payload: CreateProjectPayload): Promise<Project> => {
+  const response = await fetch(`${API_BASE_URL}/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error('Failed to create project');
+  return response.json();
+};
+
+// ── Consultant endpoints ────────────────────────────────────
+
 export const fetchConsultants = async (): Promise<Consultant[]> => {
   const response = await fetch(`${API_BASE_URL}/consultants`);
   if (!response.ok) throw new Error('Failed to fetch consultants');
   return response.json();
 };
 
-// Fetch a single consultant by ID
 export const fetchConsultantById = async (id: string): Promise<Consultant> => {
   const response = await fetch(`${API_BASE_URL}/consultants/${id}`);
   if (!response.ok) throw new Error('Failed to fetch consultant');
   return response.json();
 };
 
-// Delete a consultant by ID
 export const deleteConsultant = async (id: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/consultants/${id}`, {
     method: 'DELETE',
@@ -77,7 +118,6 @@ export const deleteConsultant = async (id: string): Promise<void> => {
   if (!response.ok) throw new Error('Failed to delete consultant');
 };
 
-// Update consultant payload (does not affect skills or project assignments)
 export interface UpdateConsultantPayload {
   name: string;
   email: string;
@@ -87,7 +127,6 @@ export interface UpdateConsultantPayload {
   openToRemote: boolean;
 }
 
-// Update a consultant by ID
 export const updateConsultant = async (id: string, data: UpdateConsultantPayload): Promise<Consultant> => {
   const response = await fetch(`${API_BASE_URL}/consultants/${id}`, {
     method: 'PUT',
@@ -98,7 +137,48 @@ export const updateConsultant = async (id: string, data: UpdateConsultantPayload
   return response.json();
 };
 
-// Search filters interface
+// ── Consultant skill management ─────────────────────────────
+
+export const addSkillToConsultant = async (
+  consultantId: string,
+  skillId: string,
+  skillYearsOfExperience: number
+): Promise<Consultant> => {
+  const response = await fetch(`${API_BASE_URL}/consultants/${consultantId}/skills`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skillId, skillYearsOfExperience }),
+  });
+  if (!response.ok) throw new Error('Failed to add skill to consultant');
+  return response.json();
+};
+
+// ── Consultant project assignment ───────────────────────────
+
+export interface AssignProjectPayload {
+  projectId: string;
+  role: string;
+  allocationPercent: number;
+  isActive: boolean;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const assignProjectToConsultant = async (
+  consultantId: string,
+  payload: AssignProjectPayload
+): Promise<Consultant> => {
+  const response = await fetch(`${API_BASE_URL}/consultants/${consultantId}/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error('Failed to assign project to consultant');
+  return response.json();
+};
+
+// ── Search ──────────────────────────────────────────────────
+
 export interface SearchFilters {
   skillNames?: string[];
   role?: string;
@@ -106,81 +186,67 @@ export interface SearchFilters {
   availability?: boolean;
   wantsNewProject?: boolean;
   openToRemote?: boolean;
-  previousCompanies?: string[];  // Company names (e.g., "Amazon", "Google")
-  startDate?: number;  // Unix timestamp (milliseconds)
-  endDate?: number;    // Unix timestamp (milliseconds)
+  previousCompanies?: string[];
+  startDate?: number;
+  endDate?: number;
 }
 
-// Search consultants with all filters
 export const searchConsultants = async (filters: SearchFilters): Promise<Consultant[]> => {
   const params = new URLSearchParams();
-  
-  // Add skill names as separate parameters
+
   if (filters.skillNames && filters.skillNames.length > 0) {
     filters.skillNames.forEach(skill => params.append('skillNames', skill));
   }
-  
-  // Add role if provided
+
   if (filters.role) {
     params.append('role', filters.role);
   }
-  
-  // Add minimum years of experience
+
   if (filters.minYearsOfExperience !== undefined) {
     params.append('minYearsOfExperience', filters.minYearsOfExperience.toString());
   }
-  
-  // Add boolean filters
+
   if (filters.availability !== undefined) {
     params.append('availability', filters.availability.toString());
   }
-  
+
   if (filters.wantsNewProject !== undefined) {
     params.append('wantsNewProject', filters.wantsNewProject.toString());
   }
-  
+
   if (filters.openToRemote !== undefined) {
     params.append('openToRemote', filters.openToRemote.toString());
   }
-  
-  
-  // Add previous companies as separate parameters
+
   if (filters.previousCompanies && filters.previousCompanies.length > 0) {
     filters.previousCompanies.forEach(company => params.append('previousCompanies', company));
   }
-  
-  // Add date range
+
   if (filters.startDate !== undefined) {
     params.append('startDate', filters.startDate.toString());
   }
-  
+
   if (filters.endDate !== undefined) {
     params.append('endDate', filters.endDate.toString());
   }
-  
+
   const url = `${API_BASE_URL}/consultants/search?${params.toString()}`;
   const response = await fetch(url);
-  
+
   if (!response.ok) {
     throw new Error('Failed to search consultants');
   }
-  
+
   return response.json();
 };
 
-// Extract unique companies from consultants' project history
+// ── Utility extractors ──────────────────────────────────────
+
 export const extractUniqueCompanies = (consultants: Consultant[]): string[] => {
   const companiesSet = new Set<string>();
-  
-  // We need to fetch companies from the projects the consultants worked on
-  // This is a placeholder - you'll need to enhance the Consultant interface
-  // to include company information in projectAssignments
-  
-  // For now, return empty array - will be populated from fetchCompanies() instead
   return Array.from(companiesSet).sort();
 };
 
-// Extract unique roles from consultants' project history  
 export const extractUniqueRoles = (consultants: Consultant[]): string[] => {
   const rolesSet = new Set<string>();
   consultants.forEach(consultant => {
@@ -193,7 +259,6 @@ export const extractUniqueRoles = (consultants: Consultant[]): string[] => {
   return Array.from(rolesSet).sort();
 };
 
-// Extract unique role types from projects
 export const extractProjectRoles = (projects: Project[]): string[] => {
   const rolesSet = new Set<string>();
   projects.forEach(project => {
