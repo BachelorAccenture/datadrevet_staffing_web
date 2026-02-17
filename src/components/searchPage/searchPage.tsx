@@ -24,11 +24,11 @@ const SearchPage = () => {
     const [selectedSkills, setSelectedSkills] = useState<string[]>([])
     const [startDate, setStartDate] = useState('')
     const [endDate, setEndDate] = useState('')
-    const [availability, setAvailability] = useState('')
-    const [wantsToSwitch, setWantsToSwitch] = useState('')
+    const [availability, setAvailability] = useState(false)
+    const [wantsToSwitch, setWantsToSwitch] = useState(false)
     const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
     const [selectedRoles, setSelectedRoles] = useState<string[]>([])
-    const [openToRemote, setOpenToRemote] = useState('')
+    const [openToRemote, setOpenToRemote] = useState(false)
 
     // Search results and loading states
     const [results, setResults] = useState<Consultant[] | null>(null)
@@ -86,23 +86,17 @@ const SearchPage = () => {
                 filters.previousCompanies = selectedCompanies
             }
             
-            // Boolean filters
-            if (availability === 'ledig') {
+            // Boolean filters — only apply when checkbox is checked
+            if (availability) {
                 filters.availability = true
-            } else if (availability === 'ikke-ledig') {
-                filters.availability = false
             }
             
-            if (wantsToSwitch === 'ja') {
+            if (wantsToSwitch) {
                 filters.wantsNewProject = true
-            } else if (wantsToSwitch === 'nei') {
-                filters.wantsNewProject = false
             }
             
-            if (openToRemote === 'ja') {
+            if (openToRemote) {
                 filters.openToRemote = true
-            } else if (openToRemote === 'nei') {
-                filters.openToRemote = false
             }
             
             // Date range filter (convert to Unix timestamp in milliseconds)
@@ -177,6 +171,15 @@ const SearchPage = () => {
                         onRemove={(value) => setSelectedSkills(selectedSkills.filter(item => item !== value))}
                     />
 
+                    <MultiSelectDropdown
+                        label='Rolle'
+                        placeholder='Søk rolle...'
+                        options={roleOptions}
+                        selected={selectedRoles}
+                        onAdd={(value) => setSelectedRoles([...selectedRoles, value])}
+                        onRemove={(value) => setSelectedRoles(selectedRoles.filter(item => item !== value))}
+                    />
+
                     <div className='filter-group'>
                         <label>Tid fra</label>
                         <input
@@ -194,26 +197,9 @@ const SearchPage = () => {
                             onChange={(e) => setEndDate(e.target.value)}
                         />
                     </div>
-
-                    <div className='filter-group'>
-                        <label>Ledighet</label>
-                        <select value={availability} onChange={(e) => setAvailability(e.target.value)}>
-                            <option value=''>Velg...</option>
-                            <option value='ledig'>Ledig</option>
-                            <option value='ikke-ledig'>Ikke ledig</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div className='filter-row'>
-                    <div className='filter-group'>
-                        <label>Ønsker å bytte</label>
-                        <select value={wantsToSwitch} onChange={(e) => setWantsToSwitch(e.target.value)}>
-                            <option value=''>Velg...</option>
-                            <option value='ja'>Ja</option>
-                            <option value='nei'>Nei</option>
-                        </select>
-                    </div>
 
                     <MultiSelectDropdown
                         label='Tidligere erfaring'
@@ -224,22 +210,37 @@ const SearchPage = () => {
                         onRemove={(value) => setSelectedCompanies(selectedCompanies.filter(item => item !== value))}
                     />
 
-                    <MultiSelectDropdown
-                        label='Rolle'
-                        placeholder='Søk rolle...'
-                        options={roleOptions}
-                        selected={selectedRoles}
-                        onAdd={(value) => setSelectedRoles([...selectedRoles, value])}
-                        onRemove={(value) => setSelectedRoles(selectedRoles.filter(item => item !== value))}
-                    />
+                    <div className='filter-checkbox'>
+                        <label>
+                            <input
+                                type='checkbox'
+                                checked={availability}
+                                onChange={(e) => setAvailability(e.target.checked)}
+                            />
+                            Kun ledige
+                        </label>
+                    </div>
+
+                    <div className='filter-checkbox'>
+                        <label>
+                            <input
+                                type='checkbox'
+                                checked={wantsToSwitch}
+                                onChange={(e) => setWantsToSwitch(e.target.checked)}
+                            />
+                            Ønsker nytt prosjekt
+                        </label>
+                    </div>
                     
-                    <div className='filter-group'>
-                        <label>Åpen for remote</label>
-                        <select value={openToRemote} onChange={(e) => setOpenToRemote(e.target.value)}>
-                            <option value=''>Velg...</option>
-                            <option value='ja'>Ja</option>
-                            <option value='nei'>Nei</option>
-                        </select>
+                    <div className='filter-checkbox'>
+                        <label>
+                            <input
+                                type='checkbox'
+                                checked={openToRemote}
+                                onChange={(e) => setOpenToRemote(e.target.checked)}
+                            />
+                            Åpen for remote
+                        </label>
                     </div>
                 </div>
 
@@ -259,7 +260,7 @@ const SearchPage = () => {
             </div>
         </div>
 
-        {results !== null && <ResultList results={results} />}
+        {results !== null && <ResultList results={results} highlightedSkills={selectedSkills} />}
         </>
     );
 }

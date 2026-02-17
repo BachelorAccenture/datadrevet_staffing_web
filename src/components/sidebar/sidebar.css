@@ -22,6 +22,11 @@
     gap: 2em;
 }
 
+.nav-links span {
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
 .nav-item {
     display: flex;
     align-items: center;

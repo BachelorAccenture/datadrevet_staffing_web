@@ -37,8 +37,7 @@
 
 .filter-group label {
     font-size: 0.85em;
-    font-weight: 600;
-    color: #333;
+    font-weight: 500;
 }
 
 .filter-group input,
@@ -50,6 +49,45 @@
     background-color: #fff;
 }
 
+.dropdown-input-wrapper {
+    display: flex;
+    position: relative;
+}
+
+.dropdown-input-wrapper input {
+    flex: 1;
+    padding: 0.5em 2em 0.5em 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+
+.dropdown-input-wrapper input:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    font-size: 0.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdown-arrow:hover {
+    color: #A100FF;
+}
+
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
@@ -59,17 +97,17 @@
 .dropdown-list {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
+    width: 100%;
     background: #fff;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
     max-height: 180px;
     overflow-y: auto;
     list-style: none;
-    margin: 0.2em 0 0 0;
+    margin: 0;
     padding: 0.3em 0;
-    z-index: 10;
+    z-index: 1000;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
@@ -79,9 +117,34 @@
     font-size: 0.9em;
 }
 
-.dropdown-item:hover {
+.dropdown-item:hover,
+.dropdown-item--active {
     background-color: #A100FF;
     color: white;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-checkbox input[type='checkbox'] {
+    width: 1.1em;
+    height: 1.1em;
+    accent-color: #A100FF;
+    cursor: pointer;
 }
 
 .filter-actions {
