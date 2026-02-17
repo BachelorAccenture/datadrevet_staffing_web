@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { type Consultant, fetchConsultantById, deleteConsultant, updateConsultant } from '../../data/api'
+import { type Consultant, fetchSkills, fetchConsultantById, deleteConsultant, updateConsultant } from '../../data/api'
 import './editConsultant.css'
 import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 
 
-// BACKEND: Disse options-listene skal hentes fra backend API
-// Eksempel: const kompetanseOptions = await fetch('/api/kompetanse').then(r => r.json())
-const kompetanseOptions = ['React', 'TypeScript', 'Java', 'Python', 'C#', 'JavaScript', 'SQL', 'Azure', 'AWS']
-
-
 const EditConsultant = () => {
+    const [skillsOptions, setSkillsOptions] = useState<string[]>([])
     const navigate = useNavigate()
     const { id } = useParams()
     const [consultant, setConsultant] = useState<Consultant | null>(null)
@@ -36,6 +32,10 @@ const EditConsultant = () => {
                 setSkills(found.skills?.map(s => s.skillName) ?? [])
                 setAvailability(found.availability)
                 setWantsNewProject(found.wantsNewProject)
+
+                const skills = await fetchSkills()
+                setSkillsOptions(skills.map(skill => skill.name).sort())
+
             } catch (err) {
                 console.error('Error fetching consultant:', err)
                 setError('Kunne ikke laste konsulent. Prøv igjen senere.')
@@ -153,7 +153,7 @@ const EditConsultant = () => {
                             <MultiSelectDropdown
                             label='Kompetanse'
                             placeholder='Legg til kompetanse...'
-                            options={kompetanseOptions}
+                            options={skillsOptions}
                             selected={skills}
                             onAdd={(v) => setSkills([...skills, v])}
                             onRemove={(v) => setSkills(skills.filter(k => k !== v))}

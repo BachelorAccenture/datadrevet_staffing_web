@@ -3,10 +3,11 @@ import type { Consultant } from '../../data/api'
 import './resultList.css'
 
 interface ResultListProps {
-    results: Consultant[]  
+    results: Consultant[]
+    highlightedSkills?: string[]
 }
 
-const ResultList = ({ results }: ResultListProps) => {
+const ResultList = ({ results, highlightedSkills = [] }: ResultListProps) => {
     const [expandedId, setExpandedId] = useState<string | null>(null)
 
     const toggleExpand = (id: string) => {
@@ -73,7 +74,7 @@ const ResultList = ({ results }: ResultListProps) => {
                                             <span className='detail-label'>Kompetanse:</span>
                                             <div className='tag-list'>
                                                 {consultant.skills?.map(skill => (
-                                                    <span key={skill.skillId} className='tag'>
+                                                    <span key={skill.skillId} className={`tag ${highlightedSkills.includes(skill.skillName) ? 'tag--highlighted' : ''}`}>
                                                         {skill.skillName} ({skill.skillYearsOfExperience} år)
                                                     </span>
                                                 ))}

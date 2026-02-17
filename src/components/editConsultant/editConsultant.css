@@ -228,7 +228,6 @@
 .popup-form h4 {
     margin: 0;
     font-size: 1.1em;
-    color: #222;
 }
 
 .popup-field {
@@ -240,7 +239,6 @@
 .popup-field label {
     font-size: 0.85em;
     font-weight: 600;
-    color: #333;
 }
 
 .popup-field input {
