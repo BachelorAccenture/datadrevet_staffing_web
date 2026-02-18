@@ -99,13 +99,13 @@ const SearchPage = () => {
                 filters.openToRemote = true
             }
             
-            // Date range filter (convert to Unix timestamp in milliseconds)
+            // Date range filter (send as ISO datetime strings for backend LocalDateTime)
             if (startDate) {
-                filters.startDate = new Date(startDate).getTime()
+                filters.startDate = `${startDate}T00:00:00`
             }
             
             if (endDate) {
-                filters.endDate = new Date(endDate).getTime()
+                filters.endDate = `${endDate}T23:59:59`
             }
 
             // Call backend search API - all filtering is done server-side
