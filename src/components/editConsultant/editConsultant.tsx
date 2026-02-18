@@ -408,7 +408,7 @@ const EditConsultant = () => {
             <>
                 <div className='header'><h1>Rediger Konsulent</h1></div>
                 <div className='edit-container'>
-                    <p style={{ color: 'red' }}>{error || 'Konsulent ikke funnet.'}</p>
+                    <p className='error-text'>{error || 'Konsulent ikke funnet.'}</p>
                     <button className='cancel-button' onClick={() => navigate('/konsulenter')}>Tilbake</button>
                 </div>
             </>
@@ -464,7 +464,7 @@ const EditConsultant = () => {
                                 <option value='ledig'>Ledig</option>
                                 <option value='ikke-ledig'>Ikke ledig</option>
                             </select>
-                            <span style={{ fontSize: '0.8em', color: '#666', marginTop: '0.25em' }}>
+                            <span className='availability-hint'>
                                 {hasActiveProject
                                     ? 'Ikke ledig – har aktivt prosjekt'
                                     : 'Ledig – ingen aktive prosjekter'}
@@ -489,14 +489,13 @@ const EditConsultant = () => {
 
                                 if (isRemoved) {
                                     return (
-                                        <div key={i} className='project-item-edit' style={{ opacity: 0.5, textDecoration: 'line-through' }}>
-                                            <div style={{ flex: 1 }}>
+                                        <div key={i} className='project-item-edit project-item--removed'>
+                                            <div className='project-item-content'>
                                                 <span className='project-name-edit'>{p.projectName}</span>
                                                 <span className='project-rolle-edit'>{p.role} – Fjernes ved lagring</span>
                                             </div>
                                             <button
-                                                className='cancel-button'
-                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                className='cancel-button btn-sm'
                                                 onClick={() => handleUndoRemoval(p.projectId)}
                                             >
                                                 Angre
@@ -507,14 +506,13 @@ const EditConsultant = () => {
 
                                 if (isDeactivated) {
                                     return (
-                                        <div key={i} className='project-item-edit' style={{ opacity: 0.7 }}>
-                                            <div style={{ flex: 1 }}>
+                                        <div key={i} className='project-item-edit project-item--deactivated'>
+                                            <div className='project-item-content'>
                                                 <span className='project-name-edit'>{p.projectName}</span>
                                                 <span className='project-rolle-edit'>{p.role} – Avsluttes ved lagring</span>
                                             </div>
                                             <button
-                                                className='cancel-button'
-                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                className='cancel-button btn-sm'
                                                 onClick={() => handleUndoDeactivation(p.projectId)}
                                             >
                                                 Angre
@@ -525,18 +523,17 @@ const EditConsultant = () => {
 
                                 return (
                                     <div key={i} className='project-item-edit'>
-                                        <div style={{ flex: 1 }}>
+                                        <div className='project-item-content'>
                                             <span className='project-name-edit'>{p.projectName}</span>
                                             <span className='project-rolle-edit'>
                                                 {p.role} ({p.allocationPercent}%)
                                                 {p.isActive ? ' – Aktiv' : ' – Tidligere'}
                                             </span>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '0.4em', alignItems: 'center' }}>
+                                        <div className='project-item-actions'>
                                             {p.isActive && (
                                                 <button
-                                                    className='cancel-button'
-                                                    style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                    className='cancel-button btn-sm'
                                                     onClick={() => handleDeactivateProject(p.projectId, p.projectName)}
                                                     title='Avslutt tildeling (beholder historikk)'
                                                 >
@@ -544,8 +541,7 @@ const EditConsultant = () => {
                                                 </button>
                                             )}
                                             <button
-                                                className='delete-button'
-                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                className='delete-button btn-sm'
                                                 onClick={() => handleRemoveProject(p.projectId, p.projectName)}
                                                 title='Fjern tildeling helt'
                                             >
@@ -558,21 +554,20 @@ const EditConsultant = () => {
 
                             {/* Pending project additions */}
                             {pendingProjects.map((pp, i) => (
-                                <div key={`pending-proj-${i}`} className='project-item-edit' style={{ borderLeft: '3px solid #A100FF' }}>
-                                    <div style={{ flex: 1 }}>
+                                <div key={`pending-proj-${i}`} className='project-item-edit project-item--pending'>
+                                    <div className='project-item-content'>
                                         <span className='project-name-edit'>
                                             {pp.projectName}
-                                            {pp.type === 'new' && <em style={{ fontSize: '0.8em', color: '#A100FF' }}> (nytt)</em>}
+                                            {pp.type === 'new' && <em className='label-new'> (nytt)</em>}
                                         </span>
                                         <span className='project-rolle-edit'>
                                             {pp.role} ({pp.allocationPercent}%)
                                             {pp.isActive ? ' – Aktiv' : ' – Tidligere'}
-                                            <em style={{ color: '#A100FF' }}> – Lagres ved lagring</em>
+                                            <em className='label-pending-save'> – Lagres ved lagring</em>
                                         </span>
                                     </div>
                                     <button
-                                        className='delete-button'
-                                        style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                        className='delete-button btn-sm'
                                         onClick={() => handleRemovePendingProject(i)}
                                     >
                                         Fjern
@@ -589,7 +584,7 @@ const EditConsultant = () => {
                     {/* ── Skills section ────────────────────────────── */}
                     <div className='edit-section'>
                         <label className='section-label'>Kompetanse</label>
-                        <div className='tag-list' style={{ marginBottom: '0.5em' }}>
+                        <div className='tag-list tag-list--skills'>
                             {consultant.skills?.map(skill => (
                                 <span key={skill.skillId} className='tag'>
                                     {skill.skillName} ({skill.skillYearsOfExperience} år)
@@ -598,13 +593,12 @@ const EditConsultant = () => {
                             {pendingSkills.map((ps, i) => (
                                 <span
                                     key={`pending-skill-${i}`}
-                                    className='tag'
-                                    style={{ borderColor: '#A100FF', cursor: 'pointer', position: 'relative' }}
+                                    className='tag tag--pending'
                                     title='Klikk for å fjerne'
                                     onClick={() => handleRemovePendingSkill(i)}
                                 >
                                     {ps.skillName} ({ps.years} år)
-                                    {ps.type === 'new' && <em style={{ fontSize: '0.8em' }}> nytt</em>}
+                                    {ps.type === 'new' && <em className='label-new'> nytt</em>}
                                     {' ✕'}
                                 </span>
                             ))}
@@ -616,14 +610,7 @@ const EditConsultant = () => {
 
                     {/* ── Unsaved changes notice ───────────────────── */}
                     {hasPendingChanges && (
-                        <div style={{
-                            padding: '0.6em 1em',
-                            background: '#f5f0ff',
-                            border: '1px solid #A100FF',
-                            borderRadius: '6px',
-                            fontSize: '0.85em',
-                            color: '#5a00a0',
-                        }}>
+                        <div className='pending-banner'>
                             Du har ulagrede endringer. Trykk «Lagre» for å bekrefte.
                         </div>
                     )}
@@ -646,7 +633,7 @@ const EditConsultant = () => {
                         <h4>Legg til kompetanse</h4>
 
                         <div className='popup-field'>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6em' }}>
+                            <label className='checkbox-label'>
                                 <input
                                     type='checkbox'
                                     checked={isCreatingNewSkill}
@@ -655,7 +642,7 @@ const EditConsultant = () => {
                                         setSelectedSkillName('')
                                         setNewSkillName('')
                                     }}
-                                    style={{ accentColor: '#A100FF' }}
+                                    className='accent-checkbox'
                                 />
                                 Opprett ny kompetanse
                             </label>
@@ -731,7 +718,7 @@ const EditConsultant = () => {
                         <h4>Tildel prosjekt</h4>
 
                         <div className='popup-field'>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6em' }}>
+                            <label className='checkbox-label'>
                                 <input
                                     type='checkbox'
                                     checked={isCreatingNewProject}
@@ -740,7 +727,7 @@ const EditConsultant = () => {
                                         setSelectedProjectId('')
                                         setNewProjectName('')
                                     }}
-                                    style={{ accentColor: '#A100FF' }}
+                                    className='accent-checkbox'
                                 />
                                 Opprett nytt prosjekt
                             </label>
@@ -785,7 +772,7 @@ const EditConsultant = () => {
                                         onChange={e => setNewProjectEndDate(e.target.value)}
                                     />
                                     {!projectDatesValid && (
-                                        <span style={{ fontSize: '0.8em', color: 'red' }}>
+                                        <span className='validation-error'>
                                             Sluttdato kan ikke være før startdato
                                         </span>
                                     )}
@@ -808,7 +795,7 @@ const EditConsultant = () => {
                             </div>
                         )}
 
-                        <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '0.3em 0' }} />
+                        <hr className='popup-divider' />
 
                         <div className='popup-field'>
                             <label>Rolle</label>
@@ -859,7 +846,7 @@ const EditConsultant = () => {
                                 onChange={e => setAssignEndDate(e.target.value)}
                             />
                             {!assignDatesValid && (
-                                <span style={{ fontSize: '0.8em', color: 'red' }}>
+                                <span className='validation-error'>
                                     Sluttdato kan ikke være før startdato
                                 </span>
                             )}
