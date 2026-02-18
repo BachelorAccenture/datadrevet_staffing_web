@@ -20,6 +20,42 @@ import {
 } from '../../data/api'
 import './editConsultant.css'
 
+// ── Types for pending (uncommitted) changes ─────────────────
+
+interface PendingSkill {
+    type: 'existing' | 'new'
+    skillId?: string       // set when type === 'existing'
+    skillName: string
+    synonyms?: string[]    // set when type === 'new'
+    years: number
+}
+
+interface PendingProject {
+    type: 'existing' | 'new'
+    projectId?: string     // set when type === 'existing'
+    projectName: string
+    // new-project fields
+    companyId?: string
+    projectStartDate?: string
+    projectEndDate?: string
+    // assignment fields
+    role: string
+    allocationPercent: number
+    isActive: boolean
+    assignStartDate?: string
+    assignEndDate?: string
+}
+
+interface PendingDeactivation {
+    projectId: string
+    projectName: string
+}
+
+interface PendingRemoval {
+    projectId: string
+    projectName: string
+}
+
 
 const EditConsultant = () => {
     const navigate = useNavigate()
@@ -39,6 +75,13 @@ const EditConsultant = () => {
     const [skills, setSkills] = useState<string[]>([])
     const [wantsNewProject, setWantsNewProject] = useState(false)
 
+    // ── Pending changes (only committed on Save) ────────────
+    const [pendingSkills, setPendingSkills] = useState<PendingSkill[]>([])
+    const [pendingProjects, setPendingProjects] = useState<PendingProject[]>([])
+    const [pendingDeactivations, setPendingDeactivations] = useState<PendingDeactivation[]>([])
+    const [pendingRemovals, setPendingRemovals] = useState<PendingRemoval[]>([])
+    const [isSaving, setIsSaving] = useState(false)
+
     // ── Add skill popup state ───────────────────────────────
     const [showAddSkillPopup, setShowAddSkillPopup] = useState(false)
     const [isCreatingNewSkill, setIsCreatingNewSkill] = useState(false)
@@ -46,7 +89,6 @@ const EditConsultant = () => {
     const [newSkillName, setNewSkillName] = useState('')
     const [newSkillSynonyms, setNewSkillSynonyms] = useState('')
     const [skillYears, setSkillYears] = useState<number>(0)
-    const [isAddingSkill, setIsAddingSkill] = useState(false)
 
     // ── Add project popup state ─────────────────────────────
     const [showAddProjectPopup, setShowAddProjectPopup] = useState(false)
@@ -61,7 +103,6 @@ const EditConsultant = () => {
     const [assignIsActive, setAssignIsActive] = useState(true)
     const [assignStartDate, setAssignStartDate] = useState('')
     const [assignEndDate, setAssignEndDate] = useState('')
-    const [isAssigningProject, setIsAssigningProject] = useState(false)
 
     useEffect(() => {
         const loadData = async () => {
@@ -96,18 +137,29 @@ const EditConsultant = () => {
     }, [id])
 
     // Availability is derived from active project assignments (managed by backend)
-    const hasActiveProject = consultant?.projectAssignments?.some(p => p.isActive) ?? false
+    // Include pending changes in the preview
+    const deactivatedIds = new Set(pendingDeactivations.map(d => d.projectId))
+    const removedIds = new Set(pendingRemovals.map(r => r.projectId))
+    const existingActiveCount = consultant?.projectAssignments
+        ?.filter(p => p.isActive && !deactivatedIds.has(p.projectId) && !removedIds.has(p.projectId))
+        .length ?? 0
+    const pendingActiveCount = pendingProjects.filter(p => p.isActive).length
+    const hasActiveProject = (existingActiveCount + pendingActiveCount) > 0
     const computedAvailability = !hasActiveProject
 
-    // Skills the consultant doesn't already have
+    // Skills the consultant doesn't already have (also exclude pending additions)
+    const pendingSkillNames = new Set(pendingSkills.map(ps => ps.skillName))
     const availableSkillNames = allSkills
-        .filter(s => !skills.includes(s.name))
+        .filter(s => !skills.includes(s.name) && !pendingSkillNames.has(s.name))
         .map(s => s.name)
         .sort()
 
-    // Projects the consultant isn't already assigned to
+    // Projects the consultant isn't already assigned to (also exclude pending)
     const assignedProjectIds = new Set(consultant?.projectAssignments?.map(p => p.projectId) ?? [])
-    const availableProjects = allProjects.filter(p => !assignedProjectIds.has(p.id))
+    const pendingProjectIds = new Set(pendingProjects.filter(p => p.type === 'existing').map(p => p.projectId!))
+    const availableProjects = allProjects.filter(
+        p => !assignedProjectIds.has(p.id) && !pendingProjectIds.has(p.id)
+    )
 
     // ── Reset helpers ───────────────────────────────────────
 
@@ -140,6 +192,55 @@ const EditConsultant = () => {
     const handleSave = async () => {
         if (!consultant) return
         try {
+            setIsSaving(true)
+
+            // 1. Process pending deactivations
+            for (const d of pendingDeactivations) {
+                await deactivateProjectAssignment(id!, d.projectId)
+            }
+
+            // 2. Process pending removals
+            for (const r of pendingRemovals) {
+                await removeProjectAssignment(id!, r.projectId)
+            }
+
+            // 3. Process pending skill additions
+            for (const ps of pendingSkills) {
+                let skillId: string
+                if (ps.type === 'new') {
+                    const created = await createSkill(ps.skillName, ps.synonyms ?? [])
+                    skillId = created.id
+                } else {
+                    skillId = ps.skillId!
+                }
+                await addSkillToConsultant(id!, skillId, ps.years)
+            }
+
+            // 4. Process pending project assignments
+            for (const pp of pendingProjects) {
+                let projectId: string
+                if (pp.type === 'new') {
+                    const payload: any = { name: pp.projectName }
+                    if (pp.companyId) payload.companyId = pp.companyId
+                    if (pp.projectStartDate) payload.startDate = `${pp.projectStartDate}T00:00:00`
+                    if (pp.projectEndDate) payload.endDate = `${pp.projectEndDate}T00:00:00`
+                    const created = await createProject(payload)
+                    projectId = created.id
+                } else {
+                    projectId = pp.projectId!
+                }
+                const assignPayload: any = {
+                    projectId,
+                    role: pp.role,
+                    allocationPercent: pp.allocationPercent,
+                    isActive: pp.isActive,
+                }
+                if (pp.assignStartDate) assignPayload.startDate = `${pp.assignStartDate}T00:00:00`
+                if (pp.assignEndDate) assignPayload.endDate = `${pp.assignEndDate}T00:00:00`
+                await assignProjectToConsultant(id!, assignPayload)
+            }
+
+            // 5. Save basic consultant fields (backend recalculates availability)
             await updateConsultant(id!, {
                 name,
                 email,
@@ -148,10 +249,13 @@ const EditConsultant = () => {
                 wantsNewProject,
                 openToRemote: consultant.openToRemote,
             })
+
             navigate('/konsulenter')
         } catch (err) {
             console.error('Feil ved lagring:', err)
             alert('Kunne ikke lagre endringene. Prøv igjen senere.')
+        } finally {
+            setIsSaving(false)
         }
     }
 
@@ -170,110 +274,91 @@ const EditConsultant = () => {
         }
     }
 
-    const handleAddSkill = async () => {
-        try {
-            setIsAddingSkill(true)
-
-            let skillId: string
-
-            if (isCreatingNewSkill) {
-                if (!newSkillName.trim()) return
-                const synonymsList = newSkillSynonyms
-                    .split(';')
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0)
-                const created = await createSkill(newSkillName.trim(), synonymsList)
-                skillId = created.id
-                setAllSkills(prev => [...prev, created])
-            } else {
-                if (!selectedSkillName) return
-                const skill = allSkills.find(s => s.name === selectedSkillName)
-                if (!skill) return
-                skillId = skill.id
-            }
-
-            const updated = await addSkillToConsultant(id!, skillId, skillYears)
-            setConsultant(updated)
-            setSkills(updated.skills?.map(s => s.skillName) ?? [])
-            resetSkillPopup()
-        } catch (err) {
-            console.error('Feil ved å legge til kompetanse:', err)
-            alert('Kunne ikke legge til kompetanse. Prøv igjen.')
-        } finally {
-            setIsAddingSkill(false)
+    /** Queue a skill addition locally (nothing hits the backend yet) */
+    const handleAddSkill = () => {
+        if (isCreatingNewSkill) {
+            if (!newSkillName.trim()) return
+            const synonymsList = newSkillSynonyms
+                .split(';')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+            setPendingSkills(prev => [...prev, {
+                type: 'new',
+                skillName: newSkillName.trim(),
+                synonyms: synonymsList,
+                years: skillYears,
+            }])
+        } else {
+            if (!selectedSkillName) return
+            const skill = allSkills.find(s => s.name === selectedSkillName)
+            if (!skill) return
+            setPendingSkills(prev => [...prev, {
+                type: 'existing',
+                skillId: skill.id,
+                skillName: skill.name,
+                years: skillYears,
+            }])
         }
+        resetSkillPopup()
     }
 
-    const handleAssignProject = async () => {
+    /** Queue a project assignment locally (nothing hits the backend yet) */
+    const handleAssignProject = () => {
         if (!assignRole.trim()) return
 
-        try {
-            setIsAssigningProject(true)
-
-            let projectId: string
-
-            if (isCreatingNewProject) {
-                if (!newProjectName.trim()) return
-                const payload: any = { name: newProjectName.trim() }
-                if (newProjectCompanyId) payload.companyId = newProjectCompanyId
-                if (newProjectStartDate) payload.startDate = `${newProjectStartDate}T00:00:00`
-                if (newProjectEndDate) payload.endDate = `${newProjectEndDate}T00:00:00`
-                const created = await createProject(payload)
-                projectId = created.id
-                setAllProjects(prev => [...prev, created])
-            } else {
-                if (!selectedProjectId) return
-                projectId = selectedProjectId
-            }
-
-            const assignPayload: any = {
-                projectId,
+        if (isCreatingNewProject) {
+            if (!newProjectName.trim()) return
+            setPendingProjects(prev => [...prev, {
+                type: 'new',
+                projectName: newProjectName.trim(),
+                companyId: newProjectCompanyId || undefined,
+                projectStartDate: newProjectStartDate || undefined,
+                projectEndDate: newProjectEndDate || undefined,
                 role: assignRole.trim(),
                 allocationPercent: assignAllocation,
                 isActive: assignIsActive,
-            }
-            if (assignStartDate) assignPayload.startDate = `${assignStartDate}T00:00:00`
-            if (assignEndDate) assignPayload.endDate = `${assignEndDate}T00:00:00`
-
-            const updated = await assignProjectToConsultant(id!, assignPayload)
-            setConsultant(updated)
-            resetProjectPopup()
-        } catch (err) {
-            console.error('Feil ved prosjekttildeling:', err)
-            alert('Kunne ikke tildele prosjekt. Prøv igjen.')
-        } finally {
-            setIsAssigningProject(false)
+                assignStartDate: assignStartDate || undefined,
+                assignEndDate: assignEndDate || undefined,
+            }])
+        } else {
+            if (!selectedProjectId) return
+            const project = allProjects.find(p => p.id === selectedProjectId)
+            setPendingProjects(prev => [...prev, {
+                type: 'existing',
+                projectId: selectedProjectId,
+                projectName: project?.name ?? selectedProjectId,
+                role: assignRole.trim(),
+                allocationPercent: assignAllocation,
+                isActive: assignIsActive,
+                assignStartDate: assignStartDate || undefined,
+                assignEndDate: assignEndDate || undefined,
+            }])
         }
+        resetProjectPopup()
     }
 
-    const handleDeactivateProject = async (projectId: string, projectName: string) => {
-        const confirmed = window.confirm(
-            `Avslutt ${name} sin tildeling til "${projectName}"? Tildelingen beholdes som historikk.`
-        )
-        if (!confirmed) return
-
-        try {
-            const updated = await deactivateProjectAssignment(id!, projectId)
-            setConsultant(updated)
-        } catch (err) {
-            console.error('Feil ved avslutting av prosjekt:', err)
-            alert('Kunne ikke avslutte prosjekttildelingen. Prøv igjen.')
-        }
+    const handleDeactivateProject = (projectId: string, projectName: string) => {
+        setPendingDeactivations(prev => [...prev, { projectId, projectName }])
     }
 
-    const handleRemoveProject = async (projectId: string, projectName: string) => {
-        const confirmed = window.confirm(
-            `Fjern "${projectName}" helt fra ${name}? Denne handlingen kan ikke angres.`
-        )
-        if (!confirmed) return
+    const handleRemoveProject = (projectId: string, projectName: string) => {
+        setPendingRemovals(prev => [...prev, { projectId, projectName }])
+    }
 
-        try {
-            const updated = await removeProjectAssignment(id!, projectId)
-            setConsultant(updated)
-        } catch (err) {
-            console.error('Feil ved fjerning av prosjekt:', err)
-            alert('Kunne ikke fjerne prosjekttildelingen. Prøv igjen.')
-        }
+    const handleUndoDeactivation = (projectId: string) => {
+        setPendingDeactivations(prev => prev.filter(d => d.projectId !== projectId))
+    }
+
+    const handleUndoRemoval = (projectId: string) => {
+        setPendingRemovals(prev => prev.filter(r => r.projectId !== projectId))
+    }
+
+    const handleRemovePendingSkill = (index: number) => {
+        setPendingSkills(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const handleRemovePendingProject = (index: number) => {
+        setPendingProjects(prev => prev.filter((_, i) => i !== index))
     }
 
     // ── Render ──────────────────────────────────────────────
@@ -308,6 +393,11 @@ const EditConsultant = () => {
             ? newProjectName.trim().length > 0
             : selectedProjectId.length > 0
     )
+
+    const hasPendingChanges = pendingSkills.length > 0
+        || pendingProjects.length > 0
+        || pendingDeactivations.length > 0
+        || pendingRemovals.length > 0
 
     return (
         <>
@@ -357,37 +447,103 @@ const EditConsultant = () => {
                     <div className='edit-section'>
                         <label className='section-label'>Prosjekter</label>
                         <div className='project-list-edit'>
-                            {consultant.projectAssignments?.map((p, i) => (
-                                <div key={i} className='project-item-edit'>
-                                    <div style={{ flex: 1 }}>
-                                        <span className='project-name-edit'>{p.projectName}</span>
-                                        <span className='project-rolle-edit'>
-                                            {p.role} ({p.allocationPercent}%)
-                                            {p.isActive ? ' – Aktiv' : ' – Tidligere'}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '0.4em', alignItems: 'center' }}>
-                                        {p.isActive && (
+                            {consultant.projectAssignments?.map((p, i) => {
+                                const isDeactivated = deactivatedIds.has(p.projectId)
+                                const isRemoved = removedIds.has(p.projectId)
+
+                                if (isRemoved) {
+                                    return (
+                                        <div key={i} className='project-item-edit' style={{ opacity: 0.5, textDecoration: 'line-through' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <span className='project-name-edit'>{p.projectName}</span>
+                                                <span className='project-rolle-edit'>{p.role} – Fjernes ved lagring</span>
+                                            </div>
                                             <button
                                                 className='cancel-button'
                                                 style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
-                                                onClick={() => handleDeactivateProject(p.projectId, p.projectName)}
-                                                title='Avslutt tildeling (beholder historikk)'
+                                                onClick={() => handleUndoRemoval(p.projectId)}
                                             >
-                                                Avslutt
+                                                Angre
                                             </button>
-                                        )}
-                                        <button
-                                            className='delete-button'
-                                            style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
-                                            onClick={() => handleRemoveProject(p.projectId, p.projectName)}
-                                            title='Fjern tildeling helt'
-                                        >
-                                            Fjern
-                                        </button>
+                                        </div>
+                                    )
+                                }
+
+                                if (isDeactivated) {
+                                    return (
+                                        <div key={i} className='project-item-edit' style={{ opacity: 0.7 }}>
+                                            <div style={{ flex: 1 }}>
+                                                <span className='project-name-edit'>{p.projectName}</span>
+                                                <span className='project-rolle-edit'>{p.role} – Avsluttes ved lagring</span>
+                                            </div>
+                                            <button
+                                                className='cancel-button'
+                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                onClick={() => handleUndoDeactivation(p.projectId)}
+                                            >
+                                                Angre
+                                            </button>
+                                        </div>
+                                    )
+                                }
+
+                                return (
+                                    <div key={i} className='project-item-edit'>
+                                        <div style={{ flex: 1 }}>
+                                            <span className='project-name-edit'>{p.projectName}</span>
+                                            <span className='project-rolle-edit'>
+                                                {p.role} ({p.allocationPercent}%)
+                                                {p.isActive ? ' – Aktiv' : ' – Tidligere'}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.4em', alignItems: 'center' }}>
+                                            {p.isActive && (
+                                                <button
+                                                    className='cancel-button'
+                                                    style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                    onClick={() => handleDeactivateProject(p.projectId, p.projectName)}
+                                                    title='Avslutt tildeling (beholder historikk)'
+                                                >
+                                                    Avslutt
+                                                </button>
+                                            )}
+                                            <button
+                                                className='delete-button'
+                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                onClick={() => handleRemoveProject(p.projectId, p.projectName)}
+                                                title='Fjern tildeling helt'
+                                            >
+                                                Fjern
+                                            </button>
+                                        </div>
                                     </div>
+                                )
+                            })}
+
+                            {/* Pending project additions */}
+                            {pendingProjects.map((pp, i) => (
+                                <div key={`pending-proj-${i}`} className='project-item-edit' style={{ borderLeft: '3px solid #A100FF' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <span className='project-name-edit'>
+                                            {pp.projectName}
+                                            {pp.type === 'new' && <em style={{ fontSize: '0.8em', color: '#A100FF' }}> (nytt)</em>}
+                                        </span>
+                                        <span className='project-rolle-edit'>
+                                            {pp.role} ({pp.allocationPercent}%)
+                                            {pp.isActive ? ' – Aktiv' : ' – Tidligere'}
+                                            <em style={{ color: '#A100FF' }}> – Lagres ved lagring</em>
+                                        </span>
+                                    </div>
+                                    <button
+                                        className='delete-button'
+                                        style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                        onClick={() => handleRemovePendingProject(i)}
+                                    >
+                                        Fjern
+                                    </button>
                                 </div>
                             ))}
+
                             <button className='add-project-btn' onClick={() => setShowAddProjectPopup(true)}>
                                 + Legg til prosjekt
                             </button>
@@ -403,17 +559,46 @@ const EditConsultant = () => {
                                     {skill.skillName} ({skill.skillYearsOfExperience} år)
                                 </span>
                             ))}
+                            {pendingSkills.map((ps, i) => (
+                                <span
+                                    key={`pending-skill-${i}`}
+                                    className='tag'
+                                    style={{ borderColor: '#A100FF', cursor: 'pointer', position: 'relative' }}
+                                    title='Klikk for å fjerne'
+                                    onClick={() => handleRemovePendingSkill(i)}
+                                >
+                                    {ps.skillName} ({ps.years} år)
+                                    {ps.type === 'new' && <em style={{ fontSize: '0.8em' }}> nytt</em>}
+                                    {' ✕'}
+                                </span>
+                            ))}
                         </div>
                         <button className='add-project-btn' onClick={() => setShowAddSkillPopup(true)}>
                             + Legg til kompetanse
                         </button>
                     </div>
 
+                    {/* ── Unsaved changes notice ───────────────────── */}
+                    {hasPendingChanges && (
+                        <div style={{
+                            padding: '0.6em 1em',
+                            background: '#f5f0ff',
+                            border: '1px solid #A100FF',
+                            borderRadius: '6px',
+                            fontSize: '0.85em',
+                            color: '#5a00a0',
+                        }}>
+                            Du har ulagrede endringer. Trykk «Lagre» for å bekrefte.
+                        </div>
+                    )}
+
                     {/* ── Action buttons ────────────────────────────── */}
                     <div className='edit-actions'>
                         <button className='cancel-button' onClick={() => navigate('/konsulenter')}>Avbryt</button>
                         <button className='delete-button' onClick={handleDelete}>Slett</button>
-                        <button className='save-button' onClick={handleSave}>Lagre</button>
+                        <button className='save-button' onClick={handleSave} disabled={isSaving}>
+                            {isSaving ? 'Lagrer...' : 'Lagre'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -494,9 +679,9 @@ const EditConsultant = () => {
                             <button
                                 className='save-button'
                                 onClick={handleAddSkill}
-                                disabled={!skillPopupValid || isAddingSkill}
+                                disabled={!skillPopupValid}
                             >
-                                {isAddingSkill ? 'Legger til...' : 'Legg til'}
+                                Legg til
                             </button>
                         </div>
                     </div>
@@ -639,9 +824,9 @@ const EditConsultant = () => {
                             <button
                                 className='save-button'
                                 onClick={handleAssignProject}
-                                disabled={!projectPopupValid || isAssigningProject}
+                                disabled={!projectPopupValid}
                             >
-                                {isAssigningProject ? 'Tildeler...' : 'Tildel'}
+                                Tildel
                             </button>
                         </div>
                     </div>
