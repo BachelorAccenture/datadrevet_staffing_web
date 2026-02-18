@@ -219,8 +219,8 @@ export interface SearchFilters {
   wantsNewProject?: boolean;
   openToRemote?: boolean;
   previousCompanies?: string[];
-  startDate?: number;
-  endDate?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export const searchConsultants = async (filters: SearchFilters): Promise<Consultant[]> => {
@@ -254,12 +254,12 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
     filters.previousCompanies.forEach(company => params.append('previousCompanies', company));
   }
 
-  if (filters.startDate !== undefined) {
-    params.append('startDate', filters.startDate.toString());
+  if (filters.startDate) {
+    params.append('startDate', filters.startDate);
   }
 
-  if (filters.endDate !== undefined) {
-    params.append('endDate', filters.endDate.toString());
+  if (filters.endDate) {
+    params.append('endDate', filters.endDate);
   }
 
   const url = `${API_BASE_URL}/consultants/search?${params.toString()}`;
