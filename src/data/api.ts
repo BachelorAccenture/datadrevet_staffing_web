@@ -177,6 +177,38 @@ export const assignProjectToConsultant = async (
   return response.json();
 };
 
+/**
+ * Marks a project assignment as inactive (ended). Preserves history.
+ * Availability is recalculated server-side.
+ */
+export const deactivateProjectAssignment = async (
+  consultantId: string,
+  projectId: string
+): Promise<Consultant> => {
+  const response = await fetch(
+    `${API_BASE_URL}/consultants/${consultantId}/projects/${projectId}/deactivate`,
+    { method: 'PATCH' }
+  );
+  if (!response.ok) throw new Error('Failed to deactivate project assignment');
+  return response.json();
+};
+
+/**
+ * Completely removes a project assignment from a consultant.
+ * Availability is recalculated server-side.
+ */
+export const removeProjectAssignment = async (
+  consultantId: string,
+  projectId: string
+): Promise<Consultant> => {
+  const response = await fetch(
+    `${API_BASE_URL}/consultants/${consultantId}/projects/${projectId}`,
+    { method: 'DELETE' }
+  );
+  if (!response.ok) throw new Error('Failed to remove project assignment');
+  return response.json();
+};
+
 // ── Search ──────────────────────────────────────────────────
 
 export interface SearchFilters {
@@ -241,11 +273,6 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
 };
 
 // ── Utility extractors ──────────────────────────────────────
-
-export const extractUniqueCompanies = (consultants: Consultant[]): string[] => {
-  const companiesSet = new Set<string>();
-  return Array.from(companiesSet).sort();
-};
 
 export const extractUniqueRoles = (consultants: Consultant[]): string[] => {
   const rolesSet = new Set<string>();

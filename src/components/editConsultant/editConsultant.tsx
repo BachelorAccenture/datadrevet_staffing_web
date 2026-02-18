@@ -15,6 +15,8 @@ import {
     assignProjectToConsultant,
     createSkill,
     createProject,
+    deactivateProjectAssignment,
+    removeProjectAssignment,
 } from '../../data/api'
 import './editConsultant.css'
 
@@ -35,7 +37,6 @@ const EditConsultant = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [skills, setSkills] = useState<string[]>([])
-    const [availability, setAvailability] = useState(true)
     const [wantsNewProject, setWantsNewProject] = useState(false)
 
     // ── Add skill popup state ───────────────────────────────
@@ -79,7 +80,6 @@ const EditConsultant = () => {
                 setName(found.name)
                 setEmail(found.email)
                 setSkills(found.skills?.map(s => s.skillName) ?? [])
-                setAvailability(found.availability)
                 setWantsNewProject(found.wantsNewProject)
                 setAllSkills(skillsData)
                 setAllProjects(projectsData)
@@ -94,6 +94,10 @@ const EditConsultant = () => {
 
         loadData()
     }, [id])
+
+    // Availability is derived from active project assignments (managed by backend)
+    const hasActiveProject = consultant?.projectAssignments?.some(p => p.isActive) ?? false
+    const computedAvailability = !hasActiveProject
 
     // Skills the consultant doesn't already have
     const availableSkillNames = allSkills
@@ -140,7 +144,7 @@ const EditConsultant = () => {
                 name,
                 email,
                 yearsOfExperience: consultant.yearsOfExperience,
-                availability,
+                availability: computedAvailability,
                 wantsNewProject,
                 openToRemote: consultant.openToRemote,
             })
@@ -242,6 +246,36 @@ const EditConsultant = () => {
         }
     }
 
+    const handleDeactivateProject = async (projectId: string, projectName: string) => {
+        const confirmed = window.confirm(
+            `Avslutt ${name} sin tildeling til "${projectName}"? Tildelingen beholdes som historikk.`
+        )
+        if (!confirmed) return
+
+        try {
+            const updated = await deactivateProjectAssignment(id!, projectId)
+            setConsultant(updated)
+        } catch (err) {
+            console.error('Feil ved avslutting av prosjekt:', err)
+            alert('Kunne ikke avslutte prosjekttildelingen. Prøv igjen.')
+        }
+    }
+
+    const handleRemoveProject = async (projectId: string, projectName: string) => {
+        const confirmed = window.confirm(
+            `Fjern "${projectName}" helt fra ${name}? Denne handlingen kan ikke angres.`
+        )
+        if (!confirmed) return
+
+        try {
+            const updated = await removeProjectAssignment(id!, projectId)
+            setConsultant(updated)
+        } catch (err) {
+            console.error('Feil ved fjerning av prosjekt:', err)
+            alert('Kunne ikke fjerne prosjekttildelingen. Prøv igjen.')
+        }
+    }
+
     // ── Render ──────────────────────────────────────────────
 
     if (isLoading) {
@@ -296,10 +330,19 @@ const EditConsultant = () => {
                     <div className='edit-row'>
                         <div className='edit-field'>
                             <label>Ledighet</label>
-                            <select value={availability ? 'ledig' : 'ikke-ledig'} onChange={e => setAvailability(e.target.value === 'ledig')}>
+                            <select
+                                value={computedAvailability ? 'ledig' : 'ikke-ledig'}
+                                disabled
+                                title='Styres automatisk av aktive prosjekter'
+                            >
                                 <option value='ledig'>Ledig</option>
                                 <option value='ikke-ledig'>Ikke ledig</option>
                             </select>
+                            <span style={{ fontSize: '0.8em', color: '#666', marginTop: '0.25em' }}>
+                                {hasActiveProject
+                                    ? 'Ikke ledig – har aktivt prosjekt'
+                                    : 'Ledig – ingen aktive prosjekter'}
+                            </span>
                         </div>
                         <div className='edit-field'>
                             <label>Ønsker nytt prosjekt</label>
@@ -316,11 +359,33 @@ const EditConsultant = () => {
                         <div className='project-list-edit'>
                             {consultant.projectAssignments?.map((p, i) => (
                                 <div key={i} className='project-item-edit'>
-                                    <span className='project-name-edit'>{p.projectName}</span>
-                                    <span className='project-rolle-edit'>
-                                        {p.role} ({p.allocationPercent}%)
-                                        {p.isActive ? ' – Aktiv' : ' – Tidligere'}
-                                    </span>
+                                    <div style={{ flex: 1 }}>
+                                        <span className='project-name-edit'>{p.projectName}</span>
+                                        <span className='project-rolle-edit'>
+                                            {p.role} ({p.allocationPercent}%)
+                                            {p.isActive ? ' – Aktiv' : ' – Tidligere'}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.4em', alignItems: 'center' }}>
+                                        {p.isActive && (
+                                            <button
+                                                className='cancel-button'
+                                                style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                                onClick={() => handleDeactivateProject(p.projectId, p.projectName)}
+                                                title='Avslutt tildeling (beholder historikk)'
+                                            >
+                                                Avslutt
+                                            </button>
+                                        )}
+                                        <button
+                                            className='delete-button'
+                                            style={{ fontSize: '0.8em', padding: '0.25em 0.6em' }}
+                                            onClick={() => handleRemoveProject(p.projectId, p.projectName)}
+                                            title='Fjern tildeling helt'
+                                        >
+                                            Fjern
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                             <button className='add-project-btn' onClick={() => setShowAddProjectPopup(true)}>
