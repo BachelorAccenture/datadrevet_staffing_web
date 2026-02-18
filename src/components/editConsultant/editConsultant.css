@@ -75,6 +75,7 @@
     background-color: #D9D9D9;
     border-radius: 12px;
     padding: 0.4em 0.8em;
+    position: relative;
 }
 
 .project-name-edit {
@@ -170,10 +171,6 @@
     color: #A100FF;
 }
 
-.project-item-edit {
-    position: relative;
-}
-
 .remove-project-btn {
     position: absolute;
     top: -6px;
@@ -241,7 +238,8 @@
     font-weight: 600;
 }
 
-.popup-field input {
+.popup-field input,
+.popup-field select {
     padding: 0.5em 0.7em;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -249,7 +247,8 @@
     background-color: #fff;
 }
 
-.popup-field input:focus {
+.popup-field input:focus,
+.popup-field select:focus {
     outline: none;
     border-color: #A100FF;
 }
@@ -259,4 +258,110 @@
     justify-content: flex-end;
     gap: 0.8em;
     margin-top: 0.3em;
+}
+
+/* ── Extracted from inline styles ──────────────────────────── */
+
+/* Error state */
+.error-text {
+    color: red;
+}
+
+/* Availability helper text below the disabled dropdown */
+.availability-hint {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 0.25em;
+}
+
+/* Project row content (name + role side) */
+.project-item-content {
+    flex: 1;
+}
+
+/* Project row: pending removal (struck-through, dimmed) */
+.project-item--removed {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+/* Project row: pending deactivation (slightly dimmed) */
+.project-item--deactivated {
+    opacity: 0.7;
+}
+
+/* Project row: pending addition (purple left accent) */
+.project-item--pending {
+    border-left: 3px solid #A100FF;
+}
+
+/* Inline action button group (Avslutt / Fjern) */
+.project-item-actions {
+    display: flex;
+    gap: 0.4em;
+    align-items: center;
+}
+
+/* Small button variant (used in project rows) */
+.btn-sm {
+    font-size: 0.8em;
+    padding: 0.25em 0.6em;
+}
+
+/* "(nytt)" label on pending items */
+.label-new {
+    font-size: 0.8em;
+    color: #A100FF;
+}
+
+/* "Lagres ved lagring" hint on pending items */
+.label-pending-save {
+    color: #A100FF;
+}
+
+/* Skill tag list with bottom spacing */
+.tag-list--skills {
+    margin-bottom: 0.5em;
+}
+
+/* Pending skill tag (removable, purple border) */
+.tag--pending {
+    border-color: #A100FF;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Unsaved changes banner */
+.pending-banner {
+    padding: 0.6em 1em;
+    background: #f5f0ff;
+    border: 1px solid #A100FF;
+    border-radius: 6px;
+    font-size: 0.85em;
+    color: #5a00a0;
+}
+
+/* Checkbox label with inline layout (popups) */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+
+/* Accenture-purple checkbox */
+.accent-checkbox {
+    accent-color: #A100FF;
+}
+
+/* Validation error hint below date inputs */
+.validation-error {
+    font-size: 0.8em;
+    color: red;
+}
+
+/* Horizontal rule divider inside popups */
+.popup-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 0.3em 0;
 }
