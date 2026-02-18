@@ -5,6 +5,8 @@ import {
     type Skill,
     type Project,
     type Company,
+    type AssignProjectPayload,
+    type CreateProjectPayload,
     fetchSkills,
     fetchProjects,
     fetchCompanies,
@@ -72,7 +74,6 @@ const EditConsultant = () => {
     // Editable fields
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
-    const [skills, setSkills] = useState<string[]>([])
     const [wantsNewProject, setWantsNewProject] = useState(false)
 
     // ── Pending changes (only committed on Save) ────────────
@@ -120,7 +121,6 @@ const EditConsultant = () => {
                 setConsultant(found)
                 setName(found.name)
                 setEmail(found.email)
-                setSkills(found.skills?.map(s => s.skillName) ?? [])
                 setWantsNewProject(found.wantsNewProject)
                 setAllSkills(skillsData)
                 setAllProjects(projectsData)
@@ -136,6 +136,34 @@ const EditConsultant = () => {
         loadData()
     }, [id])
 
+    // Close popups on Escape key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setShowAddSkillPopup(false)
+                setIsCreatingNewSkill(false)
+                setSelectedSkillName('')
+                setNewSkillName('')
+                setNewSkillSynonyms('')
+                setSkillYears(0)
+                setShowAddProjectPopup(false)
+                setIsCreatingNewProject(false)
+                setSelectedProjectId('')
+                setNewProjectName('')
+                setNewProjectCompanyId('')
+                setNewProjectStartDate('')
+                setNewProjectEndDate('')
+                setAssignRole('')
+                setAssignAllocation(100)
+                setAssignIsActive(true)
+                setAssignStartDate('')
+                setAssignEndDate('')
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [])
+
     // Availability is derived from active project assignments (managed by backend)
     // Include pending changes in the preview
     const deactivatedIds = new Set(pendingDeactivations.map(d => d.projectId))
@@ -148,9 +176,10 @@ const EditConsultant = () => {
     const computedAvailability = !hasActiveProject
 
     // Skills the consultant doesn't already have (also exclude pending additions)
+    const existingSkillNames = new Set(consultant?.skills?.map(s => s.skillName) ?? [])
     const pendingSkillNames = new Set(pendingSkills.map(ps => ps.skillName))
     const availableSkillNames = allSkills
-        .filter(s => !skills.includes(s.name) && !pendingSkillNames.has(s.name))
+        .filter(s => !existingSkillNames.has(s.name) && !pendingSkillNames.has(s.name))
         .map(s => s.name)
         .sort()
 
@@ -220,23 +249,25 @@ const EditConsultant = () => {
             for (const pp of pendingProjects) {
                 let projectId: string
                 if (pp.type === 'new') {
-                    const payload: any = { name: pp.projectName }
-                    if (pp.companyId) payload.companyId = pp.companyId
-                    if (pp.projectStartDate) payload.startDate = `${pp.projectStartDate}T00:00:00`
-                    if (pp.projectEndDate) payload.endDate = `${pp.projectEndDate}T00:00:00`
+                    const payload: CreateProjectPayload = {
+                        name: pp.projectName,
+                        ...(pp.companyId && { companyId: pp.companyId }),
+                        ...(pp.projectStartDate && { startDate: `${pp.projectStartDate}T00:00:00` }),
+                        ...(pp.projectEndDate && { endDate: `${pp.projectEndDate}T00:00:00` }),
+                    }
                     const created = await createProject(payload)
                     projectId = created.id
                 } else {
                     projectId = pp.projectId!
                 }
-                const assignPayload: any = {
+                const assignPayload: AssignProjectPayload = {
                     projectId,
                     role: pp.role,
                     allocationPercent: pp.allocationPercent,
                     isActive: pp.isActive,
+                    ...(pp.assignStartDate && { startDate: `${pp.assignStartDate}T00:00:00` }),
+                    ...(pp.assignEndDate && { endDate: `${pp.assignEndDate}T00:00:00` }),
                 }
-                if (pp.assignStartDate) assignPayload.startDate = `${pp.assignStartDate}T00:00:00`
-                if (pp.assignEndDate) assignPayload.endDate = `${pp.assignEndDate}T00:00:00`
                 await assignProjectToConsultant(id!, assignPayload)
             }
 
@@ -388,11 +419,16 @@ const EditConsultant = () => {
         ? newSkillName.trim().length > 0
         : selectedSkillName.length > 0
 
-    const projectPopupValid = assignRole.trim().length > 0 && (
-        isCreatingNewProject
-            ? newProjectName.trim().length > 0
+    // Date validation: start must not be after end
+    const projectDatesValid = !newProjectStartDate || !newProjectEndDate || newProjectStartDate <= newProjectEndDate
+    const assignDatesValid = !assignStartDate || !assignEndDate || assignStartDate <= assignEndDate
+
+    const projectPopupValid = assignRole.trim().length > 0
+        && assignDatesValid
+        && (isCreatingNewProject
+            ? newProjectName.trim().length > 0 && projectDatesValid
             : selectedProjectId.length > 0
-    )
+        )
 
     const hasPendingChanges = pendingSkills.length > 0
         || pendingProjects.length > 0
@@ -748,6 +784,11 @@ const EditConsultant = () => {
                                         value={newProjectEndDate}
                                         onChange={e => setNewProjectEndDate(e.target.value)}
                                     />
+                                    {!projectDatesValid && (
+                                        <span style={{ fontSize: '0.8em', color: 'red' }}>
+                                            Sluttdato kan ikke være før startdato
+                                        </span>
+                                    )}
                                 </div>
                             </>
                         ) : (
@@ -817,6 +858,11 @@ const EditConsultant = () => {
                                 value={assignEndDate}
                                 onChange={e => setAssignEndDate(e.target.value)}
                             />
+                            {!assignDatesValid && (
+                                <span style={{ fontSize: '0.8em', color: 'red' }}>
+                                    Sluttdato kan ikke være før startdato
+                                </span>
+                            )}
                         </div>
 
                         <div className='popup-actions'>
