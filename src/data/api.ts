@@ -122,7 +122,6 @@ export interface UpdateConsultantPayload {
   name: string;
   email: string;
   yearsOfExperience: number;
-  availability: boolean;
   wantsNewProject: boolean;
   openToRemote: boolean;
 }

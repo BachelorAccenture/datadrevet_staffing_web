@@ -276,7 +276,6 @@ const EditConsultant = () => {
                 name,
                 email,
                 yearsOfExperience: consultant.yearsOfExperience,
-                availability: computedAvailability,
                 wantsNewProject,
                 openToRemote: consultant.openToRemote,
             })
