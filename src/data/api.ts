@@ -213,7 +213,6 @@ export const removeProjectAssignment = async (
 export interface SearchFilters {
   skillNames?: string[];
   role?: string;
-  minYearsOfExperience?: number;
   availability?: boolean;
   wantsNewProject?: boolean;
   openToRemote?: boolean;
@@ -231,10 +230,6 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
 
   if (filters.role) {
     params.append('role', filters.role);
-  }
-
-  if (filters.minYearsOfExperience !== undefined) {
-    params.append('minYearsOfExperience', filters.minYearsOfExperience.toString());
   }
 
   if (filters.availability !== undefined) {
