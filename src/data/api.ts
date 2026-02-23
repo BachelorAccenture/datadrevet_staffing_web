@@ -212,7 +212,7 @@ export const removeProjectAssignment = async (
 
 export interface SearchFilters {
   skillNames?: string[];
-  role?: string;
+  roles?: string[];
   availability?: boolean;
   wantsNewProject?: boolean;
   openToRemote?: boolean;
@@ -228,8 +228,8 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
     filters.skillNames.forEach(skill => params.append('skillNames', skill));
   }
 
-  if (filters.role) {
-    params.append('role', filters.role);
+  if (filters.roles && filters.roles.length > 0) {
+    filters.roles.forEach(role => params.append('roles', role));
   }
 
   if (filters.availability !== undefined) {

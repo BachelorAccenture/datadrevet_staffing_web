@@ -78,7 +78,7 @@ const SearchPage = () => {
             
             // Roles filter - now supports multiple roles
             if (selectedRoles.length > 0) {
-                filters.role = selectedRoles[0] // Backend currently supports single role search
+                filters.roles = selectedRoles
             }
             
             // Previous experience/companies filter
