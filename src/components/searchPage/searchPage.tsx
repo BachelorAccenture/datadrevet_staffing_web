@@ -172,6 +172,15 @@ const SearchPage = () => {
                     />
 
                     <MultiSelectDropdown
+                        label='Tidligere erfaring'
+                        placeholder='Søk bedrift...'
+                        options={companyOptions}
+                        selected={selectedCompanies}
+                        onAdd={(value) => setSelectedCompanies([...selectedCompanies, value])}
+                        onRemove={(value) => setSelectedCompanies(selectedCompanies.filter(item => item !== value))}
+                    />
+
+                    <MultiSelectDropdown
                         label='Rolle'
                         placeholder='Søk rolle...'
                         options={roleOptions}
@@ -179,6 +188,9 @@ const SearchPage = () => {
                         onAdd={(value) => setSelectedRoles([...selectedRoles, value])}
                         onRemove={(value) => setSelectedRoles(selectedRoles.filter(item => item !== value))}
                     />
+                </div>
+
+                <div className='filter-row'>
 
                     <div className='filter-group'>
                         <label>Tid fra</label>
@@ -197,18 +209,6 @@ const SearchPage = () => {
                             onChange={(e) => setEndDate(e.target.value)}
                         />
                     </div>
-                </div>
-
-                <div className='filter-row'>
-
-                    <MultiSelectDropdown
-                        label='Tidligere erfaring'
-                        placeholder='Søk bedrift...'
-                        options={companyOptions}
-                        selected={selectedCompanies}
-                        onAdd={(value) => setSelectedCompanies([...selectedCompanies, value])}
-                        onRemove={(value) => setSelectedCompanies(selectedCompanies.filter(item => item !== value))}
-                    />
 
                     <div className='filter-checkbox'>
                         <label>
