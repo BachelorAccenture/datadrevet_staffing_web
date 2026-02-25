@@ -1,12 +1,5 @@
-version: "1.0"
-projects:
-  - name: "staffing-web-main"
-    ide: QDJS
-    projectPath: "."
-    qodanaYamlPath: "qodana.yaml"
-
-profiles:
-  - name: default
-    inspections:
-      - group: ALL
-        enabled: true
+configurations:
+  - id: staffing-web-main
+    name: "Staffing Web Main"
+    description: "Global configuration for the staffing web project"
+    qodanaYaml: qodana.yaml
