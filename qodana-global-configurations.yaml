@@ -1,0 +1,7 @@
+# qodana-global-configurations.yaml
+version: "1.0"
+profiles:
+  - name: default
+    inspections:
+      - group: ALL
+        enabled: true
