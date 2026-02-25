@@ -75,6 +75,7 @@ const EditConsultant = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [wantsNewProject, setWantsNewProject] = useState(false)
+    const [openToRemote, setOpenToRemote] = useState(false)
 
     // ── Pending changes (only committed on Save) ────────────
     const [pendingSkills, setPendingSkills] = useState<PendingSkill[]>([])
@@ -122,7 +123,7 @@ const EditConsultant = () => {
                 setName(found.name)
                 setEmail(found.email)
                 setWantsNewProject(found.wantsNewProject)
-                setAllSkills(skillsData)
+                setOpenToRemote(found.openToRemote)
                 setAllProjects(projectsData)
                 setAllCompanies(companiesData)
             } catch (err) {
@@ -477,6 +478,16 @@ const EditConsultant = () => {
                             </select>
                         </div>
                     </div>
+                    <div className='edit-row'>
+                        <div className='edit-field'>
+                            <label>Åpen for remote</label>
+                            <select value={openToRemote ? 'ja' : 'nei'} onChange={e => setOpenToRemote(e.target.value === 'ja')}>
+                                <option value='ja'>Ja</option>
+                                <option value='nei'>Nei</option>
+                            </select>
+                        </div>
+                    </div>
+                    
 
                     {/* ── Projects section ──────────────────────────── */}
                     <div className='edit-section'>
