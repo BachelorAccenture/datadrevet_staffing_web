@@ -34,6 +34,7 @@ export interface Consultant {
         isActive: boolean;
         startDate?: string;
         endDate?: string;
+
     }>;
 }
 
@@ -241,7 +242,6 @@ export interface SearchFilters {
   openToRemote?: boolean;
   previousCompanies?: string[];
   startDate?: string;
-  endDate?: string;
 }
 
 export const searchConsultants = async (filters: SearchFilters): Promise<Consultant[]> => {
@@ -275,9 +275,7 @@ export const searchConsultants = async (filters: SearchFilters): Promise<Consult
     params.append('startDate', filters.startDate);
   }
 
-  if (filters.endDate) {
-    params.append('endDate', filters.endDate);
-  }
+
 
   const url = `${API_BASE_URL}/consultants/search?${params.toString()}`;
   const response = await fetch(url);

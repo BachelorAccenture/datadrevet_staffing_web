@@ -104,9 +104,7 @@ const SearchPage = () => {
                 filters.startDate = `${startDate}T00:00:00`
             }
             
-            if (endDate) {
-                filters.endDate = `${endDate}T23:59:59`
-            }
+            
 
             // Call backend search API - all filtering is done server-side
             const searchResults = await searchConsultants(filters)
@@ -198,15 +196,6 @@ const SearchPage = () => {
                             type='date'
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                        />
-                    </div>
-
-                    <div className='filter-group'>
-                        <label>Tid til</label>
-                        <input
-                            type='date'
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
                         />
                     </div>
 
