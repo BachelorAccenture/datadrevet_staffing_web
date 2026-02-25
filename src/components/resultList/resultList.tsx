@@ -61,7 +61,7 @@ const ResultList = ({ results, highlightedSkills = [] }: ResultListProps) => {
                                                     <span key={assignment.projectId} className='project-bubble'>
                                                         <span className='project-name'>{assignment.projectName}</span>
                                                         <span className='project-role'>{assignment.role}</span>
-                                                        <span className='project-period'>{assignment.startDate?.slice(0,7)} – {assignment.endDate?.slice(0,7)}</span>
+                                                        <span className='project-period'>{assignment.startDate?.slice(0,7) || 'Ukjent'} – {assignment.endDate?.slice(0,7) || 'Pågår'}</span>
                                                     </span>
                                                 ))}  
                                             </div>
