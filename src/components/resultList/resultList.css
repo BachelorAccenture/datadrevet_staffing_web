@@ -200,11 +200,17 @@
     font-weight: 600;
 }
 
-.project-rolle {
+.project-role {
     color: #555;
-    padding: 0.1em 0.6em 0.3em 0.6em;
+    padding: 0.1em 0.6em;
     font-size: 0.9em;
     font-style: italic;
+}
+
+.project-period {
+    color: #777;
+    padding: 0.1em 0.6em 0.3em 0.6em;
+    font-size: 0.85em;
 }
 
 .bytte-badge {
