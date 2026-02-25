@@ -60,10 +60,8 @@ const ResultList = ({ results, highlightedSkills = [] }: ResultListProps) => {
                                                 {consultant.projectAssignments?.map(assignment => (
                                                     <span key={assignment.projectId} className='project-bubble'>
                                                         <span className='project-name'>{assignment.projectName}</span>
-                                                        <span className='project-rolle'>
-                                                            {assignment.role} 
-                                                            {assignment.isActive ? ' (Aktiv)' : ' (Tidligere)'}
-                                                        </span>
+                                                        <span className='project-role'>{assignment.role}</span>
+                                                        <span className='project-period'>{assignment.startDate?.slice(0,7)} – {assignment.endDate?.slice(0,7)}</span>
                                                     </span>
                                                 ))}  
                                             </div>
