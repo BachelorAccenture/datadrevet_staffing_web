@@ -1,5 +1,12 @@
-# qodana-global-configurations.yaml
 version: "1.0"
+
+# This list is what the Uploader is looking for
+configs:
+  - name: "staffing-web-main"
+    ide: QDJS
+    projectPath: "."
+    qodanaYamlPath: "qodana.yaml"
+
 profiles:
   - name: default
     inspections:
