@@ -18,12 +18,11 @@ jobs:
       - name: Run Qodana Configuration Uploader
         env:
           QODANA_CONFIGURATIONS_TOKEN: ${{ secrets.QODANA_CONFIGURATIONS_TOKEN }}
-          QODANA_ENDPOINT: 'https://qodana.cloud'
         run: |
           docker run --rm \
             -v $(pwd):/workspace \
             -w /workspace \
             -e QODANA_CONFIGURATIONS_TOKEN=$QODANA_CONFIGURATIONS_TOKEN \
-            -e QODANA_ENDPOINT=$QODANA_ENDPOINT \        
             jetbrains/qodana-configuration-uploader:latest \
-            --global-configs-file qodana-global-configurations.yaml
+            --global-configs-file qodana-global-configurations.yaml \
+            --qodana-host https://qodana.cloud
