@@ -1,7 +1,5 @@
 version: "1.0"
-
-# This list is what the Uploader is looking for
-configs:
+projects:
   - name: "staffing-web-main"
     ide: QDJS
     projectPath: "."
