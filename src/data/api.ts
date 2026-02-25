@@ -99,6 +99,27 @@ export const createProject = async (payload: CreateProjectPayload): Promise<Proj
 
 // ── Consultant endpoints ────────────────────────────────────
 
+// ++ NEW: CreateConsultantPayload interface ++
+export interface CreateConsultantPayload {
+  name: string;
+  email: string;
+  yearsOfExperience: number;
+  availability?: boolean;
+  wantsNewProject: boolean;
+  openToRemote: boolean;
+}
+
+// ++ NEW: createConsultant function ++
+export const createConsultant = async (data: CreateConsultantPayload): Promise<Consultant> => {
+  const response = await fetch(`${API_BASE_URL}/consultants`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create consultant');
+  return response.json();
+};
+
 export const fetchConsultants = async (): Promise<Consultant[]> => {
   const response = await fetch(`${API_BASE_URL}/consultants`);
   if (!response.ok) throw new Error('Failed to fetch consultants');
