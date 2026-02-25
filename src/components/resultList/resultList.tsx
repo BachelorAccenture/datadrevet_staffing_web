@@ -65,7 +65,7 @@ const ResultList = ({ results, highlightedSkills = [] }: ResultListProps) => {
                                                             {assignment.isActive ? ' (Aktiv)' : ' (Tidligere)'}
                                                         </span>
                                                     </span>
-                                                ))}
+                                                ))}  
                                             </div>
                                         </div>
                                     </div>

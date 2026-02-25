@@ -32,6 +32,8 @@ export interface Consultant {
         role: string;
         allocationPercent: number;
         isActive: boolean;
+        startDate?: string;
+        endDate?: string;
     }>;
 }
 
