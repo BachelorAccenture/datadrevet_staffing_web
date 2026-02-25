@@ -1,12 +1,5 @@
 # qodana-global-configurations.yaml
 version: "1.0"
-
-configs:
-  - name: "my-project-config"
-    ide: QDJS  # Use QDJS for JS/TS, QDPY for Python, etc.
-    projectPath: "."
-    qodanaYamlPath: "qodana.yaml"
-
 profiles:
   - name: default
     inspections:
