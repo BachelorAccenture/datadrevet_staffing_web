@@ -23,7 +23,6 @@ const SearchPage = () => {
     // Filter states
     const [selectedSkills, setSelectedSkills] = useState<string[]>([])
     const [startDate, setStartDate] = useState('')
-    const [endDate, setEndDate] = useState('')
     const [availability, setAvailability] = useState(false)
     const [wantsToSwitch, setWantsToSwitch] = useState(false)
     const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
@@ -86,7 +85,6 @@ const SearchPage = () => {
                 filters.previousCompanies = selectedCompanies
             }
             
-            // Boolean filters — only apply when checkbox is checked
             if (availability) {
                 filters.availability = true
             }
@@ -99,7 +97,6 @@ const SearchPage = () => {
                 filters.openToRemote = true
             }
             
-            // Date range filter (send as ISO datetime strings for backend LocalDateTime)
             if (startDate) {
                 filters.startDate = `${startDate}T00:00:00`
             }
@@ -149,6 +146,7 @@ const SearchPage = () => {
         )
     }
 
+    
     return (
         <>
         <div className='header'>
@@ -191,11 +189,12 @@ const SearchPage = () => {
                 <div className='filter-row'>
 
                     <div className='filter-group'>
-                        <label>Tid fra</label>
+                        <label>Ledig fra</label>
                         <input
                             type='date'
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
+                            disabled={!availability}
                         />
                     </div>
 

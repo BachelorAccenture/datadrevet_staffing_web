@@ -94,6 +94,17 @@
     border-color: #A100FF;
 }
 
+.filter-group input:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+.filter-group:has(input:disabled) label {
+    color: #888;
+}
+
 .dropdown-list {
     position: absolute;
     top: 100%;
