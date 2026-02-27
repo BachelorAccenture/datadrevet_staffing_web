@@ -21,6 +21,10 @@ const Sidebar = () => {
                     <img src={konsulenterIconWhite} className="icon icon-hover" alt="Konsulenter icon" />
                     <span>Konsulenter</span>
                 </NavLink>
+                <NavLink to="/graph" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                    <span style={{ fontSize: '1.4em', width: '2em', textAlign: 'center' }}>⬡</span>
+                    <span>Graph</span>
+                </NavLink>
             </div>
         </div>
     );

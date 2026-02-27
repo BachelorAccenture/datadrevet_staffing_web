@@ -5,6 +5,7 @@ import SearchPage from './components/searchPage/searchPage.tsx'
 import KonsulenterPage from './components/consultantPage/consultantPage.tsx'
 import EditConsultant from './components/editConsultant/editConsultant.tsx'
 import AddConsultant from './components/addConsultant/addConsultant.tsx'
+import GraphPage from './components/graphPage/graphPage.tsx'
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
           <Route path="/konsulenter" element={<KonsulenterPage />} />
           <Route path="/konsulenter/edit/:id" element={<EditConsultant />} />
           <Route path="/konsulenter/add" element={<AddConsultant />} />
-          <Route path="*" element={<Navigate to="/staffing" />} />
+          <Route path="/graph" element={<GraphPage />} />
+            <Route path="*" element={<Navigate to="/staffing" />} />
         </Routes>
       </main>
     </div>

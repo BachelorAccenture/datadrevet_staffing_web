@@ -1,0 +1,112 @@
+.graph-controls {
+    width: 70%;
+    margin: 0 auto 1em auto;
+    background-color: #F6F4F4;
+    border: 1px solid rgb(87, 87, 87);
+    border-radius: 13px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 1.2em 2em;
+}
+
+.graph-controls-row {
+    display: flex;
+    gap: 1.5em;
+    align-items: flex-end;
+}
+
+.query-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    flex: 1;
+}
+
+.query-selector label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.85em;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.query-selector input[type="radio"] {
+    accent-color: #A100FF;
+}
+
+.query-selector select,
+.cypher-input {
+    padding: 0.5em 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9em;
+    background-color: #fff;
+}
+
+.query-selector select:focus,
+.cypher-input:focus {
+    outline: none;
+    border-color: #A100FF;
+}
+
+.query-selector select:disabled,
+.cypher-input:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.run-button {
+    background-color: #A100FF;
+    color: white;
+    border: none;
+    padding: 0.6em 2em;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    align-self: flex-end;
+}
+
+.run-button:hover {
+    background-color: #8a00d9;
+}
+
+.graph-legend {
+    display: flex;
+    gap: 1.5em;
+    margin-top: 1em;
+    padding-top: 0.8em;
+    border-top: 1px solid #ddd;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.graph-wrapper {
+    width: 70%;
+    margin: 0 auto;
+    border: 1px solid rgb(87, 87, 87);
+    border-radius: 13px;
+    overflow: hidden;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.graph-canvas {
+    width: 100%;
+    height: calc(100vh - 340px);
+    background-color: #fff;
+}
