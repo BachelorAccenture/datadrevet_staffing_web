@@ -118,3 +118,50 @@
     height: 1.5em;
     cursor: pointer;
 }
+
+.experience-field {
+    flex: none !important;
+}
+
+.add-field input[type="number"] {
+    max-width: 80px;
+}
+
+.add-project-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 2px dashed #aaa;
+    border-radius: 12px;
+    padding: 0.6em 1.2em;
+    font-size: 0.85em;
+    color: #666;
+    cursor: pointer;
+    font-weight: 600;
+    transition: border-color 0.15s, color 0.15s;
+    width: 200px;
+}
+
+.add-project-btn:hover {
+    border-color: #A100FF;
+    color: #A100FF;
+}
+
+.checkbox-field {
+    justify-content: flex-start;
+}
+
+.checkbox-field label {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.checkbox-field input {
+    margin: 0;
+}
