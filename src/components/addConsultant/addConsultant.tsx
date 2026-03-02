@@ -378,17 +378,17 @@ const AddConsultant = () => {
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Ledig
-                        <input type={"checkbox"} checked={computedAvailability} disabled/>
+                        <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
                         </label>
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Ønsker nytt prosjekt
-                        <input type={"checkbox"} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
+                        <input className='accent-checkbox' type={'checkbox'} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
                         </label>
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Åpen for remote
-                        <input type={"checkbox"} checked={openToRemote} onChange={e => setOpenToRemote(e.target.checked)}/>
+                        <input className='accent-checkbox' type={'checkbox'} checked={openToRemote} onChange={e => setOpenToRemote(e.target.checked)}/>
                         </label>
                     </div>
 
