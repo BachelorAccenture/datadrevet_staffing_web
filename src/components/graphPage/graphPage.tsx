@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import NeoVis, { type NeovisConfig } from 'neovis.js'
 import './graphPage.css'
+import type {Company, Project} from "../../data/api.ts";
 
-// NEW: Predefined Cypher queries for quick exploration
+
 const QUERIES = [
     {
         label: 'Hele grafen (begrenset)',
@@ -10,11 +11,11 @@ const QUERIES = [
     },
     {
         label: 'Konsulenter → Kompetanse',
-        cypher: 'MATCH (c:Consultant)-[r:HAS_SKILL]->(s:Skill) RETURN c, r, s LIMIT 150',
+        cypher: 'MATCH (c:Consultant)-[r:HAS_SKILL]->(s:Skill) RETURN c, r, s',
     },
     {
         label: 'Konsulenter → Prosjekter',
-        cypher: 'MATCH (c:Consultant)-[r:ASSIGNED_TO]->(p:Project) RETURN c, r, p LIMIT 150',
+        cypher: 'MATCH (c:Consultant)-[r:ASSIGNED_TO]->(p:Project) RETURN c, r, p',
     },
     {
         label: 'Prosjekter → Bedrifter',
@@ -37,10 +38,9 @@ const GraphPage = () => {
     const vizRef = useRef<HTMLDivElement>(null)
     const vizInstance = useRef<NeoVis | null>(null)
     const [selectedQuery, setSelectedQuery] = useState(0)
-    const [customCypher, setCustomCypher] = useState('')
     const [isCustom, setIsCustom] = useState(false)
 
-    // NEW: Build neovis config and render graph
+    // Build neovis config and render graph
     const renderGraph = (cypher: string) => {
         if (!vizRef.current) return
 
@@ -69,8 +69,14 @@ const GraphPage = () => {
                 },
                 physics: {
                     barnesHut: {
-                        gravitationalConstant: -8000,
-                        springLength: 150,
+                        gravitationalConstant: -10000,
+                        springLength: 100,
+                        damping: 0.15,
+                    },
+                    stabilization: {
+                        enabled: true,
+                        iterations: 150,
+                        updateInterval: 25,
                     },
                 },
                 interaction: {
@@ -78,13 +84,12 @@ const GraphPage = () => {
                     tooltipDelay: 200,
                 },
             },
-            // REMOVE the old labels config and REPLACE with:
             labels: {
                 Consultant: {
                     label: 'name',
                     [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
                         function: {
-                            label: (node: any) => node.properties.name,
+                            label: (node: { properties?: { name?: string } }) => node.properties?.name ?? '',
                         },
                         static: {
                             color: { background: '#A100FF', border: '#7B00BF' },
@@ -98,7 +103,7 @@ const GraphPage = () => {
                     label: 'name',
                     [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
                         function: {
-                            label: (node: any) => node.properties.name,
+                            label: (node: { properties?: { name?: string } }) => node.properties?.name ?? '',
                         },
                         static: {
                             color: { background: '#4CAF50', border: '#388E3C' },
@@ -112,7 +117,7 @@ const GraphPage = () => {
                     label: 'name',
                     [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
                         function: {
-                            label: (node: any) => node.properties.name,
+                            label: (node: { properties?: { name?: string } }) => node.properties?.name ?? '',
                         },
                         static: {
                             color: { background: '#2196F3', border: '#1565C0' },
@@ -126,7 +131,7 @@ const GraphPage = () => {
                     label: 'name',
                     [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
                         function: {
-                            label: (node: any) => node.properties.name,
+                            label: (node: { properties?: { name?: string } }) => node.properties?.name ?? '',
                         },
                         static: {
                             color: { background: '#FF9800', border: '#E65100' },
@@ -151,7 +156,6 @@ const GraphPage = () => {
         vizInstance.current = viz
     }
 
-    // NEW: Render on mount and when query changes
     useEffect(() => {
         const cypher = isCustom ? customCypher : QUERIES[selectedQuery].cypher
         if (cypher.trim()) {
@@ -177,7 +181,7 @@ const GraphPage = () => {
                 <h1>Graph Explorer</h1>
             </div>
 
-            {/* NEW: Query controls */}
+            {}
             <div className="graph-controls">
                 <div className="graph-controls-row">
                     <div className="query-selector">
@@ -200,31 +204,12 @@ const GraphPage = () => {
                         </select>
                     </div>
 
-                    <div className="query-selector">
-                        <label>
-                            <input
-                                type="radio"
-                                checked={isCustom}
-                                onChange={() => setIsCustom(true)}
-                            />
-                            Egendefinert Cypher
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 50"
-                            value={customCypher}
-                            onChange={(e) => setCustomCypher(e.target.value)}
-                            disabled={!isCustom}
-                            className="cypher-input"
-                        />
-                    </div>
-
                     <button className="run-button" onClick={handleRunQuery}>
                         Kjør
                     </button>
                 </div>
 
-                {/* NEW: Legend */}
+                {}
                 <div className="graph-legend">
                     <span className="legend-item"><span className="legend-dot" style={{ backgroundColor: '#A100FF' }} /> Konsulent</span>
                     <span className="legend-item"><span className="legend-dot" style={{ backgroundColor: '#4CAF50' }} /> Kompetanse</span>
@@ -233,7 +218,7 @@ const GraphPage = () => {
                 </div>
             </div>
 
-            {/* NEW: Graph container */}
+            {}
             <div className="graph-wrapper">
                 <div id="neo4j-viz" ref={vizRef} className="graph-canvas" />
             </div>

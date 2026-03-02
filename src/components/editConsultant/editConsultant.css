@@ -134,21 +134,6 @@
     background-color: #f0f0f0;
 }
 
-.delete-button {
-    background-color: #FF4C4C;
-    color: white;
-    border: none;
-    padding: 0.6em 2em;
-    border-radius: 8px;
-    font-size: 1em;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.delete-button:hover {
-    background-color: #d93636;
-}
-
 /* Legg til prosjekt */
 
 .add-project-btn {
@@ -290,9 +275,8 @@
     opacity: 0.7;
 }
 
-/* Project row: pending addition (purple left accent) */
+/* Project row: pending addition */
 .project-item--pending {
-    border-left: 3px solid #A100FF;
 }
 
 /* Inline action button group (Avslutt / Fjern) */

@@ -15,8 +15,8 @@ import {
     createSkill,
     createProject,
 } from '../../data/api'
-import '../editConsultant/editConsultant.css'
 import './addConsultant.css'
+import trash from '../../assets/images/trash-can-bytte-med-offisiell.png'
 
 // ── Types for pending (uncommitted) changes ─────────────────
 // (same as editConsultant)
@@ -418,25 +418,18 @@ const AddConsultant = () => {
                     <div className='edit-section'>
                         <label className='section-label'>Prosjekter</label>
                         <div className='project-list-edit'>
-                            {pendingProjects.map((pp, i) => (
+                            {pendingProjects.map((pendingProjects, i) => (
                                 <div key={`pending-proj-${i}`} className='project-item-edit project-item--pending'>
                                     <div className='project-item-content'>
-                                        <span className='project-name-edit'>
-                                            {pp.projectName}
-                                            {pp.type === 'new' && <em className='label-new'> (nytt)</em>}
-                                        </span>
-                                        <span className='project-rolle-edit'>
-                                            {pp.role} ({pp.allocationPercent}%)
-                                            {pp.isActive ? ' – Aktiv' : ' – Tidligere'}
-                                            <em className='label-pending-save'> – Lagres ved lagring</em>
-                                        </span>
+                                        <span className='project-name'>{pendingProjects.projectName}</span>
+                                        <div className='project-role-row'>
+                                            <div className='project-role-column'>
+                                                <span className='project-role'>{pendingProjects.role}</span>
+                                                <span className='project-period'>{pendingProjects.assignStartDate?.slice(0,7) || 'Ukjent'} – {pendingProjects.assignEndDate?.slice(0,7) || 'Pågår'}</span>
+                                            </div>
+                                            <img className= {'delete-image'} src={trash} alt='Slett' onClick={() => handleRemovePendingProject(i)} />
+                                        </div>
                                     </div>
-                                    <button
-                                        className='delete-button btn-sm'
-                                        onClick={() => handleRemovePendingProject(i)}
-                                    >
-                                        Fjern
-                                    </button>
                                 </div>
                             ))}
 

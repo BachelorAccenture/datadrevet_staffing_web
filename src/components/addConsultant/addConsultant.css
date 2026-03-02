@@ -71,7 +71,7 @@
 .cancel-button {
     background-color: #fff;
     color: #333;
-    border: 1px solid #ccc;
+    border: 1px solid #fff;
     padding: 0.6em 2em;
     border-radius: 8px;
     font-size: 1em;
@@ -81,4 +81,40 @@
 
 .cancel-button:hover {
     background-color: #f0f0f0;
+}
+
+.project-item-content{
+    display: flex;
+    flex-direction: column;
+    background-color: #D9D9D9;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.75em;
+    padding: 0.5em 0.8em;
+}
+
+.project-role-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-role-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.project-period {
+    color: #666;
+}
+
+.delete-image {
+    width: 1.5em;
+    height: 1.5em;
+    cursor: pointer;
 }
