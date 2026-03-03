@@ -21,6 +21,7 @@ import {
     removeProjectAssignment,
 } from '../../data/api'
 import './editConsultant.css'
+import trash from '../../assets/images/bin-removebg-preview.png'
 
 // ── Types for pending (uncommitted) changes ─────────────────
 
@@ -443,50 +444,36 @@ const EditConsultant = () => {
             </div>
             <div className='edit-container'>
                 <div className='edit-form'>
-                    <div className='edit-row'>
-                        <div className='edit-field'>
-                            <label>Navn</label>
-                            <input type='text' value={name} onChange={e => setName(e.target.value)} />
-                        </div>
-                        <div className='edit-field'>
-                            <label>E-post</label>
-                            <input type='email' value={email} onChange={e => setEmail(e.target.value)} />
-                        </div>
+                    <div className='edit-field'>
+                        <label>Navn</label>
+                        <input type='text' value={name} onChange={e => setName(e.target.value)} />
+                    </div>
+                    <div className='edit-field'>
+                        <label>E-post</label>
+                        <input type='email' value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
 
-                    <div className='edit-row'>
-                        <div className='edit-field'>
-                            <label>Ledighet</label>
-                            <select
-                                value={computedAvailability ? 'ledig' : 'ikke-ledig'}
-                                disabled
-                                title='Styres automatisk av aktive prosjekter'
-                            >
-                                <option value='ledig'>Ledig</option>
-                                <option value='ikke-ledig'>Ikke ledig</option>
-                            </select>
-                            <span className='availability-hint'>
-                                {hasActiveProject
-                                    ? 'Ikke ledig – har aktivt prosjekt'
-                                    : 'Ledig – ingen aktive prosjekter'}
-                            </span>
+                    <div className='edit-field'>
+                        <div className='add-field checkbox-field'>
+                            <label>Ledig
+                                <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                            </label>
                         </div>
-                        <div className='edit-field'>
-                            <label>Ønsker nytt prosjekt</label>
-                            <select value={wantsNewProject ? 'ja' : 'nei'} onChange={e => setWantsNewProject(e.target.value === 'ja')}>
-                                <option value='ja'>Ja</option>
-                                <option value='nei'>Nei</option>
-                            </select>
-                        </div>
+                        <span className='availability-hint'>
+                            {hasActiveProject
+                                ? 'Ikke ledig – har aktivt prosjekt'
+                                : 'Ledig – ingen aktive prosjekter'}
+                        </span>
                     </div>
-                    <div className='edit-row'>
-                        <div className='edit-field'>
-                            <label>Åpen for remote</label>
-                            <select value={openToRemote ? 'ja' : 'nei'} onChange={e => setOpenToRemote(e.target.value === 'ja')}>
-                                <option value='ja'>Ja</option>
-                                <option value='nei'>Nei</option>
-                            </select>
-                        </div>
+                    <div className='add-field checkbox-field'>
+                        <label>Ønsker nytt prosjekt
+                            <input className='accent-checkbox' type={'checkbox'} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
+                        </label>
+                    </div>
+                    <div className='add-field checkbox-field'>
+                        <label>Åpen for remote
+                            <input className='accent-checkbox' type={'checkbox'} checked={openToRemote} onChange={e => setOpenToRemote(e.target.checked)}/>
+                        </label>
                     </div>
                     
 
@@ -552,11 +539,13 @@ const EditConsultant = () => {
                                                 </button>
                                             )}
                                             <button
-                                                className='delete-button btn-sm'
+                                                type="button"
+                                                className="delete-button btn-sm"
                                                 onClick={() => handleRemoveProject(p.projectId, p.projectName)}
-                                                title='Fjern tildeling helt'
+                                                aria-label="Fjern tildeling"
+                                                title="Fjern tildeling"
                                             >
-                                                Fjern
+                                                <img className="delete-image" src={trash} alt="" />
                                             </button>
                                         </div>
                                     </div>
