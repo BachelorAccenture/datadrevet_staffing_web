@@ -16,7 +16,7 @@ import {
     createProject,
 } from '../../data/api'
 import './addConsultant.css'
-import trash from '../../assets/images/trash-can-bytte-med-offisiell.png'
+import trash from '../../assets/images/bin-removebg-preview.png'
 
 // ── Types for pending (uncommitted) changes ─────────────────
 // (same as editConsultant)
