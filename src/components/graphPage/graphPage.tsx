@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import NeoVis, { type NeovisConfig } from 'neovis.js'
 import './graphPage.css'
-import type {Company, Project} from "../../data/api.ts";
 
 
 const QUERIES = [
@@ -157,7 +156,7 @@ const GraphPage = () => {
     }
 
     useEffect(() => {
-        const cypher = isCustom ? customCypher : QUERIES[selectedQuery].cypher
+        const cypher = QUERIES[selectedQuery].cypher
         if (cypher.trim()) {
             renderGraph(cypher)
         }
@@ -169,7 +168,7 @@ const GraphPage = () => {
     }, [])
 
     const handleRunQuery = () => {
-        const cypher = isCustom ? customCypher : QUERIES[selectedQuery].cypher
+        const cypher = QUERIES[selectedQuery].cypher
         if (cypher.trim()) {
             renderGraph(cypher)
         }

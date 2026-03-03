@@ -124,6 +124,7 @@ const EditConsultant = () => {
                 setEmail(found.email)
                 setWantsNewProject(found.wantsNewProject)
                 setOpenToRemote(found.openToRemote)
+                setAllSkills(skillsData)
                 setAllProjects(projectsData)
                 setAllCompanies(companiesData)
             } catch (err) {
