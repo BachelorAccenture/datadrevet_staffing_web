@@ -538,7 +538,15 @@ const EditConsultant = () => {
                                                     Avslutt
                                                 </button>
                                             )}
-                                            <img className= {'delete-image'} src={trash} alt='Slett' onClick={() => handleRemoveProject(p.projectId, p.projectName)} />
+                                            <button
+                                                type="button"
+                                                className="delete-button btn-sm"
+                                                onClick={() => handleRemoveProject(p.projectId, p.projectName)}
+                                                aria-label="Fjern tildeling"
+                                                title="Fjern tildeling"
+                                            >
+                                                <img className="delete-image" src={trash} alt="" />
+                                            </button>
                                         </div>
                                     </div>
                                 )
