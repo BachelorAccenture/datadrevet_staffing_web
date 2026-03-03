@@ -355,63 +355,41 @@ const AddConsultant = () => {
             </div>
             <div className='add-container'>
                 <div className='add-form'>
-                    <div className='add-row'>
-                        <div className='add-field'>
-                            <label>Navn</label>
-                            <input type='text' placeholder='Fullt navn...' value={name} onChange={e => setName(e.target.value)} />
-                        </div>
-                        <div className='add-field'>
-                            <label>E-post</label>
-                            <input type='email' placeholder='epost@accenture.com' value={email} onChange={e => setEmail(e.target.value)} />
-                        </div>
+                    <div className='add-field'>
+                        <label>Navn</label>
+                        <input type='text' placeholder='Fullt navn...' value={name} onChange={e => setName(e.target.value)} />
+                    </div>
+                    <div className='add-field'>
+                        <label>E-post</label>
+                        <input type='email' placeholder='epost@accenture.com' value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
 
-                    <div className='add-row'>
-                        <div className='add-field'>
-                            <label>Års erfaring</label>
-                            <input
-                                type='number'
-                                min={0}
-                                value={yearsOfExperience}
-                                onChange={e => {
-                                    const value = parseInt(e.target.value, 10)
-                                    setYearsOfExperience(Number.isNaN(value) || value < 0 ? 0 : value)
-                                }}
-                            />
-                        </div>
-                        <div className='add-field'>
-                            <label>Ledighet</label>
-                            <select
-                                value={computedAvailability ? 'ledig' : 'ikke-ledig'}
-                                disabled
-                                title='Styres automatisk av aktive prosjekter'
-                            >
-                                <option value='ledig'>Ledig</option>
-                                <option value='ikke-ledig'>Ikke ledig</option>
-                            </select>
-                            <span className='availability-hint'>
-                                {hasActiveProject
-                                    ? 'Ikke ledig – har aktivt prosjekt'
-                                    : 'Ledig – ingen aktive prosjekter'}
-                            </span>
-                        </div>
+                    <div className='add-field experience-field'>
+                        <label>Års erfaring</label>
+                        <input
+                            type='number'
+                            min={0}
+                            value={yearsOfExperience}
+                            onChange={e => {
+                                const value = parseInt(e.target.value, 10)
+                                setYearsOfExperience(Number.isNaN(value) || value < 0 ? 0 : value)
+                            }}
+                        />
                     </div>
-
-                    <div className='add-row'>
-                        <div className='add-field'>
-                            <label>Ønsker nytt prosjekt</label>
-                            <select value={wantsNewProject ? 'ja' : 'nei'} onChange={e => setWantsNewProject(e.target.value === 'ja')}>
-                                <option value='ja'>Ja</option>
-                                <option value='nei'>Nei</option>
-                            </select>
-                        </div>
-                        <div className='add-field'>
-                            <label>Åpen for remote</label>
-                            <select value={openToRemote ? 'ja' : 'nei'} onChange={e => setOpenToRemote(e.target.value === 'ja')}>
-                                <option value='ja'>Ja</option>
-                                <option value='nei'>Nei</option>
-                            </select>
-                        </div>
+                    <div className='add-field checkbox-field'>
+                        <label>Ledig
+                        <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                        </label>
+                    </div>
+                    <div className='add-field checkbox-field'>
+                        <label>Ønsker nytt prosjekt
+                        <input className='accent-checkbox' type={'checkbox'} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
+                        </label>
+                    </div>
+                    <div className='add-field checkbox-field'>
+                        <label>Åpen for remote
+                        <input className='accent-checkbox' type={'checkbox'} checked={openToRemote} onChange={e => setOpenToRemote(e.target.checked)}/>
+                        </label>
                     </div>
 
                     {/* ── Projects section ──────────────────────────── */}
