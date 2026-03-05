@@ -21,7 +21,7 @@ import {
     removeProjectAssignment,
 } from '../../data/api'
 import './editConsultant.css'
-import trash from '../../assets/images/bin-removebg-preview.png'
+import trash from "../../assets/images/bin-removebg-preview.png";
 
 // ── Types for pending (uncommitted) changes ─────────────────
 
@@ -444,31 +444,35 @@ const EditConsultant = () => {
             </div>
             <div className='edit-container'>
                 <div className='edit-form'>
-                    <div className='edit-field'>
-                        <label>Navn</label>
-                        <input type='text' value={name} onChange={e => setName(e.target.value)} />
-                    </div>
-                    <div className='edit-field'>
-                        <label>E-post</label>
-                        <input type='email' value={email} onChange={e => setEmail(e.target.value)} />
+                    <div className='edit-row'>
+                        <div className='edit-field'>
+                            <label>Navn</label>
+                            <input type='text' value={name} onChange={e => setName(e.target.value)} />
+                        </div>
+                        <div className='edit-field'>
+                            <label>E-post</label>
+                            <input type='email' value={email} onChange={e => setEmail(e.target.value)} />
+                        </div>
                     </div>
 
-                    <div className='edit-field'>
+                    <div className='edit-row'>
+                        <div className='edit-field'>
+                            <div className='add-field checkbox-field'>
+                                <label>Ledig
+                                    <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                                </label>
+                            </div>
+                            <span className='availability-hint'>
+                                {hasActiveProject
+                                    ? 'Ikke ledig – har aktivt prosjekt'
+                                    : 'Ledig – ingen aktive prosjekter'}
+                            </span>
+                        </div>
                         <div className='add-field checkbox-field'>
-                            <label>Ledig
-                                <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                            <label>Ønsker nytt prosjekt
+                                <input className='accent-checkbox' type={'checkbox'} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
                             </label>
                         </div>
-                        <span className='availability-hint'>
-                            {hasActiveProject
-                                ? 'Ikke ledig – har aktivt prosjekt'
-                                : 'Ledig – ingen aktive prosjekter'}
-                        </span>
-                    </div>
-                    <div className='add-field checkbox-field'>
-                        <label>Ønsker nytt prosjekt
-                            <input className='accent-checkbox' type={'checkbox'} checked={wantsNewProject} onChange={e => setWantsNewProject(e.target.checked)}/>
-                        </label>
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Åpen for remote
@@ -538,15 +542,7 @@ const EditConsultant = () => {
                                                     Avslutt
                                                 </button>
                                             )}
-                                            <button
-                                                type="button"
-                                                className="delete-button btn-sm"
-                                                onClick={() => handleRemoveProject(p.projectId, p.projectName)}
-                                                aria-label="Fjern tildeling"
-                                                title="Fjern tildeling"
-                                            >
-                                                <img className="delete-image" src={trash} alt="" />
-                                            </button>
+                                            <img className= {'delete-image'} src={trash} alt='Slett' onClick={() => handleRemoveProject(p.projectId, p.projectName)} />
                                         </div>
                                     </div>
                                 )
