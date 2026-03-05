@@ -51,9 +51,9 @@ const GraphPage = () => {
         const config: NeovisConfig = {
             containerId: vizRef.current.id,
             neo4j: {
-                serverUrl: 'bolt://localhost:7687',
+                serverUrl: `bolt://${window.location.hostname}:7687`,
                 serverUser: 'neo4j',
-                serverPassword: 'password',
+                serverPassword: 'staffing123',
             },
             visConfig: {
                 nodes: {
