@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import NeoVis, { type NeovisConfig } from 'neovis.js'
 import './graphPage.css'
 
+interface GraphCredentials {
+    url: string
+    username: string
+    password: string
+}
 
 const QUERIES = [
     {
@@ -37,23 +42,20 @@ const GraphPage = () => {
     const vizRef = useRef<HTMLDivElement>(null)
     const vizInstance = useRef<NeoVis | null>(null)
     const [selectedQuery, setSelectedQuery] = useState(0)
-    const [isCustom, setIsCustom] = useState(false)
+    const [credentials, setCredentials] = useState<GraphCredentials | null>(null)
+    const [credentialsError, setCredentialsError] = useState(false)
 
-    // Build neovis config and render graph
-    const renderGraph = (cypher: string) => {
+    const renderGraph = useCallback((cypher: string, creds: GraphCredentials) => {
         if (!vizRef.current) return
 
-        // Clean up previous instance
-        if (vizInstance.current) {
-            vizInstance.current.clearNetwork()
-        }
+        vizInstance.current?.clearNetwork()
 
         const config: NeovisConfig = {
             containerId: vizRef.current.id,
             neo4j: {
-                serverUrl: `bolt://${window.location.hostname}:7687`,
-                serverUser: 'neo4j',
-                serverPassword: 'staffing123',
+                serverUrl: creds.url,
+                serverUser: creds.username,
+                serverPassword: creds.password,
             },
             visConfig: {
                 nodes: {
@@ -153,25 +155,30 @@ const GraphPage = () => {
         const viz = new NeoVis(config)
         viz.render()
         vizInstance.current = viz
-    }
-
-    useEffect(() => {
-        const cypher = QUERIES[selectedQuery].cypher
-        if (cypher.trim()) {
-            renderGraph(cypher)
-        }
-        return () => {
-            if (vizInstance.current) {
-                vizInstance.current.clearNetwork()
-            }
-        }
     }, [])
 
-    const handleRunQuery = () => {
-        const cypher = QUERIES[selectedQuery].cypher
-        if (cypher.trim()) {
-            renderGraph(cypher)
+    useEffect(() => {
+        fetch('/api/v1/graph/credentials')
+            .then((res) => {
+                if (!res.ok) throw new Error('Failed to fetch credentials')
+                return res.json() as Promise<GraphCredentials>
+            })
+            .then(setCredentials)
+            .catch(() => setCredentialsError(true))
+    }, [])
+
+    useEffect(() => {
+        if (credentials) {
+            renderGraph(QUERIES[selectedQuery].cypher, credentials)
         }
+        return () => {
+            vizInstance.current?.clearNetwork()
+        }
+    }, [credentials, renderGraph, selectedQuery])
+
+    const handleRunQuery = () => {
+        if (!credentials) return
+        renderGraph(QUERIES[selectedQuery].cypher, credentials)
     }
 
     return (
@@ -180,22 +187,13 @@ const GraphPage = () => {
                 <h1>Graph Explorer</h1>
             </div>
 
-            {}
             <div className="graph-controls">
                 <div className="graph-controls-row">
                     <div className="query-selector">
-                        <label>
-                            <input
-                                type="radio"
-                                checked={!isCustom}
-                                onChange={() => setIsCustom(false)}
-                            />
-                            Forhåndsdefinert
-                        </label>
+                        <label>Forhåndsdefinert</label>
                         <select
                             value={selectedQuery}
                             onChange={(e) => setSelectedQuery(Number(e.target.value))}
-                            disabled={isCustom}
                         >
                             {QUERIES.map((q, i) => (
                                 <option key={i} value={i}>{q.label}</option>
@@ -203,12 +201,21 @@ const GraphPage = () => {
                         </select>
                     </div>
 
-                    <button className="run-button" onClick={handleRunQuery}>
+                    <button
+                        className="run-button"
+                        onClick={handleRunQuery}
+                        disabled={!credentials}
+                    >
                         Kjør
                     </button>
                 </div>
 
-                {}
+                {credentialsError && (
+                    <p style={{ color: 'red', marginTop: '0.5em', fontSize: '0.85em' }}>
+                        Kunne ikke hente tilkoblingsinformasjon fra serveren.
+                    </p>
+                )}
+
                 <div className="graph-legend">
                     <span className="legend-item"><span className="legend-dot" style={{ backgroundColor: '#A100FF' }} /> Konsulent</span>
                     <span className="legend-item"><span className="legend-dot" style={{ backgroundColor: '#4CAF50' }} /> Kompetanse</span>
@@ -217,7 +224,6 @@ const GraphPage = () => {
                 </div>
             </div>
 
-            {}
             <div className="graph-wrapper">
                 <div id="neo4j-viz" ref={vizRef} className="graph-canvas" />
             </div>
