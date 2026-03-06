@@ -222,11 +222,6 @@
     font-weight: 600;
 }
 
-.dropdown-input-wrapper {
-    display: flex;
-    position: relative;
-}
-
 .dropdown-input-wrapper input {
     flex: 1;
     padding: 0.5em 2em 0.5em 0.7em;
