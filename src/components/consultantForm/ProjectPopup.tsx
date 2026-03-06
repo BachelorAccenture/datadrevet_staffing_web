@@ -102,7 +102,6 @@ const ProjectPopup = ({ form }: ProjectPopupProps) => {
                     selected={form.assignRole ? [form.assignRole] : []}
                     onAdd={(value) => form.setAssignRole(value)}
                     onRemove={() => form.setAssignRole('')}
-                    singleSelect={true}
                 />
 
                 <div className='popup-field'>
