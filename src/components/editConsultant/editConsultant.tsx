@@ -19,9 +19,11 @@ import {
     createProject,
     deactivateProjectAssignment,
     removeProjectAssignment,
+    extractProjectRoles,
 } from '../../data/api'
 import './editConsultant.css'
 import trash from "../../assets/images/bin-removebg-preview.png";
+import MultiSelectDropdown from '../multiSelectDropdown/multiSelectDropdown'
 
 // ── Types for pending (uncommitted) changes ─────────────────
 
@@ -793,15 +795,16 @@ const EditConsultant = () => {
 
                         <hr className='popup-divider' />
 
-                        <div className='popup-field'>
-                            <label>Rolle</label>
-                            <input
-                                type='text'
-                                placeholder='F.eks. Backend Developer'
-                                value={assignRole}
-                                onChange={e => setAssignRole(e.target.value)}
-                            />
-                        </div>
+                        <MultiSelectDropdown
+                            label='Rolle'
+                            placeholder='F.eks. Backend Developer'
+                            options={extractProjectRoles(allProjects)}
+                            selected={assignRole ? [assignRole] : []}
+                            onAdd={(value) => setAssignRole(value)}
+                            onRemove={() => setAssignRole('')}
+                            singleSelect={true}
+                        />
+
                         <div className='popup-field'>
                             <label>Allokering (%)</label>
                             <input
