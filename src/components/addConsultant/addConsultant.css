@@ -119,6 +119,13 @@
     cursor: pointer;
 }
 
+.availability-hint {
+    font-size: 0.75em;
+    color: #666;
+    margin-top: -0.2em;
+    margin-left: 1.8em;
+}
+
 .experience-field {
     flex: none !important;
 }

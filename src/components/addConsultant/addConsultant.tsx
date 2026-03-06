@@ -153,8 +153,13 @@ const AddConsultant = () => {
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Ledig
-                        <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                            <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
                         </label>
+                        <span className='availability-hint'>
+                            {hasActiveProject
+                                ? 'Ikke ledig – har aktivt prosjekt'
+                                : 'Ledig – ingen aktive prosjekter'}
+                        </span>
                     </div>
                     <div className='add-field checkbox-field'>
                         <label>Ønsker nytt prosjekt

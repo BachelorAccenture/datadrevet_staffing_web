@@ -118,6 +118,36 @@
     background-color: #8a00d9;
 }
 
+.checkbox-field {
+    justify-content: flex-start;
+}
+
+.checkbox-field label {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.checkbox-field input {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    font-size: inherit;
+}
+
+.availability-hint {
+    font-size: 0.75em;
+    color: #666;
+    margin-top: -0.2em;
+    margin-left: 1.8em;
+}
+
 .cancel-button {
     background-color: #fff;
     color: #333;

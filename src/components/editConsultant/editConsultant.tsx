@@ -228,26 +228,24 @@ const EditConsultant = () => {
                         </div>
                     </div>
 
-                    <div className='edit-row'>
-                        <div className='edit-field'>
-                            <div className='add-field checkbox-field'>
-                                <label>Ledig
-                                    <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
-                                </label>
-                            </div>
-                            <span className='availability-hint'>
-                                {hasActiveProject
-                                    ? 'Ikke ledig – har aktivt prosjekt'
-                                    : 'Ledig – ingen aktive prosjekter'}
-                            </span>
-                        </div>
-                        <div className='add-field checkbox-field'>
-                            <label>Ønsker nytt prosjekt
-                                <input className='accent-checkbox' type={'checkbox'} checked={form.wantsNewProject} onChange={e => form.setWantsNewProject(e.target.checked)}/>
-                            </label>
-                        </div>
+                    <div className='edit-field checkbox-field'>
+                        <label>Ledig
+                            <input className='accent-checkbox' type={'checkbox'} checked={computedAvailability} disabled/>
+                        </label>
+                        <span className='availability-hint'>
+                            {hasActiveProject
+                                ? 'Ikke ledig – har aktivt prosjekt'
+                                : 'Ledig – ingen aktive prosjekter'}
+                        </span>
                     </div>
-                    <div className='add-field checkbox-field'>
+
+                    <div className='edit-field checkbox-field'>
+                        <label>Ønsker nytt prosjekt
+                            <input className='accent-checkbox' type={'checkbox'} checked={form.wantsNewProject} onChange={e => form.setWantsNewProject(e.target.checked)}/>
+                        </label>
+                    </div>
+
+                    <div className='edit-field checkbox-field'>
                         <label>Åpen for remote
                             <input className='accent-checkbox' type={'checkbox'} checked={form.openToRemote} onChange={e => form.setOpenToRemote(e.target.checked)}/>
                         </label>
