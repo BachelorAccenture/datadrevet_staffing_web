@@ -11,7 +11,7 @@ interface GraphCredentials {
 const QUERIES = [
     {
         label: 'Hele grafen (begrenset)',
-        cypher: 'MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 150',
+        cypher: 'MATCH (n)-[r]->(m) RETURN n, r, m',
     },
     {
         label: 'Konsulenter → Kompetanse',
