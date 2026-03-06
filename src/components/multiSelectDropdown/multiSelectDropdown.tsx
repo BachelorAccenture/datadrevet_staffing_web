@@ -8,9 +8,11 @@ interface MultiSelectProps {
     selected: string[]
     onAdd: (value: string) => void
     onRemove: (value: string) => void
+    singelSelect?: boolean
 }
 
-const MultiSelectDropdown = ({ label, placeholder, options, selected, onAdd, onRemove }: MultiSelectProps) => {
+const MultiSelectDropdown = ({ label, placeholder, options, selected, onAdd, onRemove, singelSelect = false
+}: MultiSelectProps) => {
     const [input, setInput] = useState('')
     const [isOpen, setIsOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
@@ -30,6 +32,9 @@ const MultiSelectDropdown = ({ label, placeholder, options, selected, onAdd, onR
     }, [])
 
     const handleSelect = (value: string) => {
+        if (singelSelect && selected.length > 0) {
+            onRemove(selected[0])
+        }
         onAdd(value)
         setInput('')
         setIsOpen(false)
