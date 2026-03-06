@@ -17,7 +17,20 @@ const MultiSelectDropdown = ({ label, placeholder, options, selected, onAdd, onR
     const ref = useRef<HTMLDivElement>(null)
 
     const handleSelect = (value: string) => {
-        onAdd(value)
+        if (singleSelect) {
+            // Ensure only one selection by clearing any existing selections first
+            selected.forEach(item => {
+                if (item !== value) {
+                    onRemove(item)
+                }
+            })
+            // Avoid re-adding the same value if it's already selected
+            if (!selected.includes(value)) {
+                onAdd(value)
+            }
+        } else {
+            onAdd(value)
+        }
         setInput('')
         setIsOpen(false)
     }
