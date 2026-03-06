@@ -35,14 +35,13 @@ const MultiSelectDropdown = ({ label, placeholder, options, selected, onAdd, onR
         setIsOpen(false)
     }
 
-    const handleClickOutside = (e: MouseEvent) => {
-        if (ref.current && !ref.current.contains(e.target as Node)) {
-            setIsOpen(false)
-            if (singleSelect) setInput('')
-        }
-    }
-
     useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setIsOpen(false)
+                if (singleSelect) setInput('')
+            }
+        }
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [singleSelect]) // Re-bind if singleSelect changes
